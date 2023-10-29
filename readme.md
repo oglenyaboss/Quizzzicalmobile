@@ -20,6 +20,7 @@ To install Quiz on your mobile device or emulator, you'll need to have Node.js, 
 1. Install Node.js: You can download and install Node.js from the official website: https://nodejs.org/en/download/
 
 2. Install React Native: You can install React Native using npm, the Node.js package manager. Open a terminal window and run the following command: 
+   
         ```bash
         cd quizzzical
         ```
