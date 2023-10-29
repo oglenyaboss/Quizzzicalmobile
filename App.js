@@ -23,10 +23,22 @@ import LottieView from "lottie-react-native";
 import AnimatedView from "react-native-reanimated/src/reanimated2/component/View";
 import { Audio } from "expo-av";
 import * as Haptics from "expo-haptics";
+<<<<<<< Updated upstream
+=======
+import Lost from "./components/Lost";
+import NetworkError from "./components/NetworkError";
+import StartScreen from "./components/StartScreen";
+import Loading from "./components/Loading";
+import { styles } from "./components/Styles";
+import RightGif from "./components/RightGif";
+import BottomScreen from "./components/BottomScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+>>>>>>> Stashed changes
 
 export default function App() {
   const [sound, setSound] = React.useState();
   const [questions, setQuestions] = React.useState(null);
+<<<<<<< Updated upstream
   const [isStarted, setIsStarted] = React.useState(false);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
@@ -34,6 +46,20 @@ export default function App() {
   const [wrongCount, setWrongCount] = React.useState(0);
   const [showRightGif, setShowRightGif] = React.useState(false);
   const [isNetworkError, setNetworkError] = React.useState(false);
+=======
+  const [appState, setAppState] = React.useState({
+    isStarted: false,
+    isLoaded: false,
+    NetworkError: false,
+    currentQuestionIndex: 0,
+    showRightGif: false,
+  });
+  const [counts, setCounts] = React.useState({
+    rightCount: 0,
+    wrongCount: 0,
+  });
+  const [isModalVisible, setModalVisible] = React.useState(false);
+>>>>>>> Stashed changes
 
   const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 10);
   const [loaded] = useFonts({
@@ -50,7 +76,7 @@ export default function App() {
 
   React.useEffect(() => {
     animationRef.current?.play(0, 150);
-  }, [rightCount]);
+  }, [counts.rightCount]);
 
   React.useEffect(() => {
     return sound
@@ -65,7 +91,7 @@ export default function App() {
     if (loaded) {
       console.log(currentQuestion.correct_answer);
     }
-  }, [currentQuestionIndex]);
+  }, [appState.currentQuestionIndex]);
 
   function removeHtmlTags(str) {
     return decode(str);
@@ -83,44 +109,15 @@ export default function App() {
     return shuffledArray;
   };
 
+<<<<<<< Updated upstream
   async function playSound() {
     console.log(wrongCount);
+=======
+  async function playSound(name) {
+>>>>>>> Stashed changes
     console.log("Loading Sound");
     const { sound } = await Audio.Sound.createAsync(
       require("./assets/Sounds/whoosh.mp3")
-    );
-    setSound(sound);
-
-    console.log("Playing Sound");
-    await sound.playAsync();
-  }
-
-  async function playSadSound() {
-    console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync(
-      require("./assets/Sounds/sad.mp3")
-    );
-    setSound(sound);
-
-    console.log("Playing Sound");
-    await sound.playAsync();
-  }
-
-  async function playCorrectSound() {
-    console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync(
-      require("./assets/Sounds/correct.mp3")
-    );
-    setSound(sound);
-
-    console.log("Playing Sound");
-    await sound.playAsync();
-  }
-
-  async function playWrongSound() {
-    console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync(
-      require("./assets/Sounds/wrong.mp3")
     );
     setSound(sound);
 
@@ -135,7 +132,6 @@ export default function App() {
       ); // Замените URL на необходимый для Trivia API
       if (response.status === 200) {
         // Получите данные из ответа и установите их в состояние
-        setNetworkError(false);
         setQuestions(
           response.data.results.map((question) => {
             const mergedArray = [
@@ -163,15 +159,31 @@ export default function App() {
           })
         );
       } else {
-        setNetworkError(true);
+        setAppState((appState) => ({
+          ...appState,
+          isNetworkError: true,
+        }));
         console.error("Ошибка при запросе данных");
       }
     } catch (error) {
-      setNetworkError(true);
+      setAppState((appState) => ({
+        ...appState,
+        isNetworkError: true,
+      }));
       console.error("Произошла ошибка при выполнении запроса:", error);
     } finally {
-      setIsStarted(false);
-      setTimeout(() => setIsLoaded(true), 1500);
+      setAppState((appState) => ({
+        ...appState,
+        isLoaded: false,
+      }));
+      setTimeout(
+        () =>
+          setAppState((appState) => ({
+            ...appState,
+            isLoaded: true,
+          })),
+        1500
+      );
     }
   };
   function holdAnswer(id, answerId) {
@@ -191,7 +203,10 @@ export default function App() {
           isRight = answer.isCorrect === isHeld;
 
           if (isRight) {
-            setShowRightGif(true);
+            setAppState((appState) => ({
+              ...appState,
+              showRightGif: true,
+            }));
           }
 
           return { ...answer, isHeld, isRight };
@@ -202,8 +217,16 @@ export default function App() {
         let wrongCountNum = 0;
 
         if (rightAnswer && rightAnswer.isHeld) {
+<<<<<<< Updated upstream
           setRightCount((count) => count + 1);
           playCorrectSound();
+=======
+          setCounts((counts) => ({
+            ...counts,
+            rightCount: counts.rightCount + 1,
+          }));
+          playSound("correct");
+>>>>>>> Stashed changes
           setTimeout(
             () =>
               Haptics.notificationAsync(
@@ -211,11 +234,20 @@ export default function App() {
               ),
             250
           );
-        } else if (rightCount > 0) {
+        } else if (counts.rightCount > 0) {
           wrongCountNum++;
+<<<<<<< Updated upstream
           setWrongCount(wrongCountNum);
           console.log(wrongCount + " count ");
           playSadSound();
+=======
+          setCounts((counts) => ({
+            ...counts,
+            wrongCount: counts.wrongCount + 1,
+          }));
+          console.log(counts.wrongCount + " count ");
+          playSound();
+>>>>>>> Stashed changes
           setTimeout(
             () =>
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error),
@@ -250,43 +282,73 @@ export default function App() {
   }
 
   function previousQuestion() {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setShowRightGif(false);
+    if (appState.currentQuestionIndex > 0) {
+      setAppState((appState) => ({
+        ...appState,
+        currentQuestionIndex: appState.currentQuestionIndex - 1,
+        showRightGift: false,
+      }));
     }
   }
 
   function newGame() {
-    if (currentQuestionIndex === 0) {
-      setCurrentQuestionIndex(0);
-      setRightCount(0);
-      setWrongCount(0);
-      setIsStarted(true);
+    if (appState.currentQuestionIndex === 0) {
+      setAppState((appState) => ({
+        ...appState,
+        isStarted: true,
+        currentQuestionIndex: 0,
+      }));
+      setCounts((counts) => ({
+        ...counts,
+        rightCount: 0,
+        wrongCount: 0,
+      }));
     } else {
-      setCurrentQuestionIndex(0);
-      setRightCount(0);
-      setWrongCount(0);
-      setIsLoaded(false);
+      setAppState((appState) => ({
+        ...appState,
+        isStarted: false,
+        currentQuestionIndex: 0,
+        isLoaded: false,
+      }));
+      setCounts((counts) => ({
+        ...counts,
+        rightCount: 0,
+        wrongCount: 0,
+      }));
       fetchTriviaData();
-      setIsStarted(false);
     }
   }
   async function nextQuestion() {
-    if (currentQuestionIndex === questions.length - 1) {
+    if (appState.currentQuestionIndex === questions.length - 1) {
+      setAppState((appState) => ({
+        ...appState,
+        isLoaded: false,
+        isStarted: false,
+      }));
       fetchTriviaData();
-      setIsStarted(true);
     }
+<<<<<<< Updated upstream
     await playSound();
     setCurrentQuestionIndex((index) => index + 1);
     setIsLoaded(true);
     setShowRightGif(false);
+=======
+    await playSound("whoosh");
+    setAppState((appState) => ({
+      ...appState,
+      showRightGif: false,
+      currentQuestionIndex: appState.currentQuestionIndex + 1,
+      isLoaded: true,
+    }));
+>>>>>>> Stashed changes
   }
 
   const currentQuestion =
-    questions === null ? null : questions[currentQuestionIndex];
+    questions === null ? null : questions[appState.currentQuestionIndex];
 
   return (
     <View style={[styles.container]}>
+<<<<<<< Updated upstream
       {isLoaded === false ? (
         <Animated.View
           entering={FadeInRight.duration(500)}
@@ -393,6 +455,16 @@ export default function App() {
             </TouchableOpacity>
           </Animated.View>
         </View>
+=======
+      {appState.isLoaded === false ? (
+        <Loading />
+      ) : appState.NetworkError === true ? (
+        <NetworkError fetchTriviaData={fetchTriviaData} />
+      ) : appState.isStarted === false ? (
+        <StartScreen newGame={newGame} />
+      ) : counts.wrongCount > 0 ? (
+        <Lost newGame={newGame} />
+>>>>>>> Stashed changes
       ) : (
         <Animated.View
           entering={FadeInRight.duration(500).delay(500)}
@@ -400,6 +472,7 @@ export default function App() {
           style={[styles.container]}
         >
           <View style={{ alignItems: "center", width: "100%", height: "15%" }}>
+<<<<<<< Updated upstream
             {showRightGif === true && (
               <Animated.View
                 entering={FadeInUp.duration(500)}
@@ -415,6 +488,9 @@ export default function App() {
                 />
               </Animated.View>
             )}
+=======
+            {appState.showRightGif === true && <RightGif />}
+>>>>>>> Stashed changes
           </View>
           <View
             style={{
@@ -430,6 +506,7 @@ export default function App() {
               nextQuestion={nextQuestion}
             />
           </View>
+<<<<<<< Updated upstream
           <View
             style={{
               flexDirection: "row",
@@ -479,6 +556,16 @@ export default function App() {
               )}
             </View>
           </View>
+=======
+          <BottomScreen
+            rightCount={counts.rightCount}
+            currentQuestionIndex={appState.currentQuestionIndex}
+            questions={questions}
+            previousQuestion={previousQuestion}
+            nextQuestion={nextQuestion}
+            animationRef={animationRef}
+          />
+>>>>>>> Stashed changes
         </Animated.View>
       )}
     </View>

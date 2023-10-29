@@ -27,7 +27,11 @@
     "react-native-reanimated": "^3.3.0",
     "react-native-render-html": "^6.3.4",
     "react-native-responsive-fontsize": "^0.5.1",
+<<<<<<< Updated upstream
     "expo-updates": "~0.18.17"
+=======
+    "@react-native-async-storage/async-storage": "1.18.2"
+>>>>>>> Stashed changes
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
