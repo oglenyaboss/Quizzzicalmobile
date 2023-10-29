@@ -10,8 +10,7 @@
     "preview": {
       "distribution": "internal",
       "ios": {
-        "simulator": true,
-        "credentialsSource": "local"
+        "simulator": true
       }
     },
     "production": {}
