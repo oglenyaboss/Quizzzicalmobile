@@ -19,13 +19,16 @@ import BottomScreen from "./components/BottomScreen";
 export default function App() {
   const [sound, setSound] = React.useState();
   const [questions, setQuestions] = React.useState(null);
-  const [isStarted, setIsStarted] = React.useState(false);
-  const [isLoaded, setIsLoaded] = React.useState(false);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
-  const [rightCount, setRightCount] = React.useState(0);
-  const [wrongCount, setWrongCount] = React.useState(0);
-  const [showRightGif, setShowRightGif] = React.useState(false);
-  const [isNetworkError, setNetworkError] = React.useState(false);
+  const [appState, setAppState] = React.useState({
+    isStarted: false,
+    isLoaded: false,
+    currentQuestionIndex: 0,
+    rightCount: 0,
+    wrongCount: 0,
+    showRightGif: false,
+    isNetworkError: false,
+    isModalVisible: false,
+  });
   const [isModalVisible, setModalVisible] = React.useState(false);
 
   const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 10);
@@ -44,7 +47,7 @@ export default function App() {
 
   React.useEffect(() => {
     animationRef.current?.play(0, 150);
-  }, [rightCount]);
+  }, [appState.rightCount]);
 
   React.useEffect(() => {
     return sound
@@ -59,7 +62,7 @@ export default function App() {
     if (loaded) {
       console.log(currentQuestion.correct_answer);
     }
-  }, [currentQuestionIndex]);
+  }, [appState.currentQuestionIndex]);
 
   function removeHtmlTags(str) {
     return decode(str);
@@ -78,7 +81,6 @@ export default function App() {
   };
 
   async function playSound(name) {
-    console.log(wrongCount);
     console.log("Loading Sound");
     let { sound } = await Audio.Sound.createAsync(
       require("./assets/Sounds/whoosh.mp3")
@@ -106,39 +108,6 @@ export default function App() {
     await sound.playAsync();
   }
 
-  async function playSadSound() {
-    console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync(
-      require("./assets/Sounds/sad.mp3")
-    );
-    setSound(sound);
-
-    console.log("Playing Sound");
-    await sound.playAsync();
-  }
-
-  async function playCorrectSound() {
-    console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync(
-      require("./assets/Sounds/correct.mp3")
-    );
-    setSound(sound);
-
-    console.log("Playing Sound");
-    await sound.playAsync();
-  }
-
-  async function playWrongSound() {
-    console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync(
-      require("./assets/Sounds/wrong.mp3")
-    );
-    setSound(sound);
-
-    console.log("Playing Sound");
-    await sound.playAsync();
-  }
-
   const fetchTriviaData = async () => {
     try {
       const response = await axios.get(
@@ -146,7 +115,6 @@ export default function App() {
       ); // Замените URL на необходимый для Trivia API
       if (response.status === 200) {
         // Получите данные из ответа и установите их в состояние
-        setNetworkError(false);
         setQuestions(
           response.data.results.map((question) => {
             const mergedArray = [
@@ -174,15 +142,15 @@ export default function App() {
           })
         );
       } else {
-        setNetworkError(true);
+        setAppState({ ...appState, isNetworkError: true });
         console.error("Ошибка при запросе данных");
       }
     } catch (error) {
-      setNetworkError(true);
+      setAppState({ ...appState, isNetworkError: true });
       console.error("Произошла ошибка при выполнении запроса:", error);
     } finally {
-      setIsStarted(false);
-      setTimeout(() => setIsLoaded(true), 1500);
+      setAppState({ ...appState, isStarted: false });
+      setTimeout(() => setAppState({ ...appState, isLoaded: true }), 1500);
     }
   };
   function holdAnswer(id, answerId) {
@@ -202,7 +170,7 @@ export default function App() {
           isRight = answer.isCorrect === isHeld;
 
           if (isRight) {
-            setShowRightGif(true);
+            setAppState({ ...appState, showRightGif: true });
           }
 
           return { ...answer, isHeld, isRight };
@@ -256,42 +224,52 @@ export default function App() {
 
   function newGame() {
     if (currentQuestionIndex === 0) {
-      setCurrentQuestionIndex(0);
-      setRightCount(0);
-      setWrongCount(0);
-      setIsStarted(true);
+      setAppState({
+        ...appState,
+        isStarted: false,
+        isLoaded: false,
+        currentQuestionIndex: 0,
+        rightCount: 0,
+        wrongCount: 0,
+      });
     } else {
-      setCurrentQuestionIndex(0);
-      setRightCount(0);
-      setWrongCount(0);
-      setIsLoaded(false);
+      setAppState({
+        ...appState,
+        isStarted: false,
+        isLoaded: false,
+        currentQuestionIndex: 0,
+        rightCount: 0,
+        wrongCount: 0,
+      });
       fetchTriviaData();
-      setIsStarted(false);
     }
   }
   async function nextQuestion() {
-    if (currentQuestionIndex === questions.length - 1) {
+    if (appState.currentQuestionIndex === questions.length - 1) {
       fetchTriviaData();
-      setIsStarted(true);
+      setAppState({ ...appState, isStarted: true });
     }
     await playSound("whoosh");
-    setCurrentQuestionIndex((index) => index + 1);
-    setIsLoaded(true);
-    setShowRightGif(false);
+    setAppState({
+      ...appState,
+      currentQuestionIndex: appState.currentQuestionIndex + 1,
+      isLoaded: true,
+      showRightGif: false,
+    });
   }
 
   const currentQuestion =
-    questions === null ? null : questions[currentQuestionIndex];
+    questions === null ? null : questions[appState.currentQuestionIndex];
 
   return (
     <View style={[styles.container]}>
-      {isLoaded === false ? (
+      {appState.isLoaded === false ? (
         <Loading />
-      ) : isNetworkError === true ? (
+      ) : appState.isNetworkError === true ? (
         <NetworkError fetchTriviaData={fetchTriviaData} />
-      ) : isStarted === false ? (
+      ) : appState.isStarted === false ? (
         <StartScreen newGame={newGame} />
-      ) : wrongCount > 0 ? (
+      ) : appState.wrongCount > 0 ? (
         <Lost newGame={newGame} />
       ) : (
         <Animated.View
@@ -300,7 +278,7 @@ export default function App() {
           style={[styles.container]}
         >
           <View style={{ alignItems: "center", width: "100%", height: "15%" }}>
-            {showRightGif === true && <RightGif />}
+            {appState.showRightGif === true && <RightGif />}
           </View>
           <View
             style={{
@@ -317,8 +295,8 @@ export default function App() {
             />
           </View>
           <BottomScreen
-            rightCount={rightCount}
-            currentQuestionIndex={currentQuestionIndex}
+            rightCount={appState.rightCount}
+            currentQuestionIndex={appState.currentQuestionIndex}
             questions={questions}
             previousQuestion={previousQuestion}
             nextQuestion={nextQuestion}
