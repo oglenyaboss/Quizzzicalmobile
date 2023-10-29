@@ -9,8 +9,9 @@
     },
     "preview": {
       "distribution": "internal",
+      "releaseChannel": "staging",
       "ios": {
-        "credentialsSource": "local"
+        "simulator": true
       }
     },
     "production": {}
