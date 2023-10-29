@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 import Animated, {
   FadeInRight,
@@ -9,6 +9,7 @@ import Animated, {
   FadeOutLeft,
   FadeOutDown,
 } from "react-native-reanimated";
+import { styles } from "./Styles";
 
 export default function Quiz(props) {
   let questionLength = props.currentQuestion.question.length;
@@ -19,10 +20,12 @@ export default function Quiz(props) {
       ? RFValue(28)
       : questionLength < 50
       ? RFValue(26)
-      : questionLength < 60 ? RFValue(24)
-      : questionLength < 70 ? RFValue(22)
+      : questionLength < 60
+      ? RFValue(24)
+      : questionLength < 70
+      ? RFValue(22)
       : RFValue(20);
-      
+
   const answers = props.currentQuestion.answers.map((answer) => {
     let answerLength = answer.text.length;
     const answerFontSize =
@@ -93,16 +96,16 @@ export default function Quiz(props) {
   });
   return (
     <Animated.View
-    entering={FadeIn.duration(500).delay(500)}
-    exiting={FadeOut.duration(500)}
-    style={[styles.quizContainer]}>
-      <View
-        style={[styles.questionContainer]}
-      >
+      entering={FadeIn.duration(500).delay(500)}
+      exiting={FadeOut.duration(500)}
+      style={[styles.quizContainer]}
+    >
+      <View style={[styles.questionContainer]}>
         <Animated.Text
-        entering={FadeInUp.duration(500).delay(500)}
-        exiting={FadeOutDown.duration(250)}
-        style={[styles.questionText, { fontSize: questionFontSize }]}>
+          entering={FadeInUp.duration(500).delay(500)}
+          exiting={FadeOutDown.duration(250)}
+          style={[styles.questionText, { fontSize: questionFontSize }]}
+        >
           {props.currentQuestion.question}
         </Animated.Text>
       </View>
@@ -110,59 +113,3 @@ export default function Quiz(props) {
     </Animated.View>
   );
 }
-
-const styles = StyleSheet.create({
-  questionContainer: {
-    width: "80%",
-    minHeight: "20%",
-    height: "40%",
-    justifyContent: "center",
-    marginBottom: "2%",
-  },
-  answersContainer: {
-    backgroundColor: "#F5F7FB",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  quizContainer: {
-    width: "100%",
-    backgroundColor: "#F5F7FB",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  button: {
-    width: "60%",
-    minWidth: "60%",
-    minHeight: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 20,
-    borderStyle: "solid",
-    borderWidth: 1,
-    borderColor: "#4D5B9E",
-    marginBottom: "2%",
-    padding: "2%",
-  },
-  answerRight: {
-    backgroundColor: "#94D7A2",
-    borderWidth: 0,
-  },
-  answerWrong: {
-    backgroundColor: "#F8BCBC",
-    opacity: 0.5,
-    borderWidth: 0,
-  },
-  answerInactive: {
-    opacity: 0.3,
-  },
-  questionText: {
-    color: "#293264",
-    fontFamily: "Karla",
-    fontWeight: "bold",
-  },
-  answerText: {
-    color: "#293264",
-    fontFamily: "Inter-500",
-  },
-});
