@@ -23,12 +23,12 @@ To install Quiz on your mobile device or emulator, you'll need to have Node.js, 
    
         ```bash
         cd quizzzical
-        ```
+        
 
 3. Install Expo: You can install Expo using npm as well. Open a terminal window and run the following command:
-        ```
+        ```bash
             npm install -g expo-cli
-        ```
+            ```
 
 
 Once you have these tools installed, you can clone the Quiz repository and install its dependencies:
