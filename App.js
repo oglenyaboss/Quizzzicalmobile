@@ -23,11 +23,13 @@ export default function App() {
     isStarted: false,
     isLoaded: false,
     currentQuestionIndex: 0,
-    rightCount: 0,
-    wrongCount: 0,
     showRightGif: false,
     isNetworkError: false,
     isModalVisible: false,
+  });
+  const [counts, setCounts] = React.useState({
+    rightCount: 0,
+    wrongCount: 0,
   });
   const [isModalVisible, setModalVisible] = React.useState(false);
 
@@ -47,7 +49,7 @@ export default function App() {
 
   React.useEffect(() => {
     animationRef.current?.play(0, 150);
-  }, [appState.rightCount]);
+  }, [counts.rightCount]);
 
   React.useEffect(() => {
     return sound
@@ -181,7 +183,7 @@ export default function App() {
         let wrongCountNum = 0;
 
         if (rightAnswer && rightAnswer.isHeld) {
-          setRightCount((count) => count + 1);
+          setCounts({ ...counts, rightCount: counts.rightCount + 1 });
           playSound("correct");
           setTimeout(
             () =>
@@ -190,10 +192,9 @@ export default function App() {
               ),
             250
           );
-        } else if (rightCount > 0) {
+        } else if (counts.rightCount > 0) {
           wrongCountNum++;
-          setWrongCount(wrongCountNum);
-          console.log(wrongCount + " count ");
+          setCounts({ ...counts, wrongCount: wrongCountNum });
           playSound();
           setTimeout(
             () =>
@@ -216,19 +217,25 @@ export default function App() {
     );
   }
   function previousQuestion() {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setShowRightGif(false);
+    if (appState.currentQuestionIndex > 0) {
+      setAppState({
+        ...appState,
+        showRightGif: false,
+        currentQuestionIndex: appState.currentQuestionIndex - 1,
+      });
     }
   }
 
   function newGame() {
-    if (currentQuestionIndex === 0) {
+    if (appState.currentQuestionIndex === 0) {
+      console.log(JSON.stringify(appState));
       setAppState({
         ...appState,
-        isStarted: false,
-        isLoaded: false,
+        isLoaded: true,
+        isStarted: true,
         currentQuestionIndex: 0,
+      });
+      setCounts({
         rightCount: 0,
         wrongCount: 0,
       });
@@ -238,6 +245,8 @@ export default function App() {
         isStarted: false,
         isLoaded: false,
         currentQuestionIndex: 0,
+      });
+      setCounts({
         rightCount: 0,
         wrongCount: 0,
       });
@@ -269,7 +278,7 @@ export default function App() {
         <NetworkError fetchTriviaData={fetchTriviaData} />
       ) : appState.isStarted === false ? (
         <StartScreen newGame={newGame} />
-      ) : appState.wrongCount > 0 ? (
+      ) : counts.wrongCount > 0 ? (
         <Lost newGame={newGame} />
       ) : (
         <Animated.View
@@ -295,7 +304,7 @@ export default function App() {
             />
           </View>
           <BottomScreen
-            rightCount={appState.rightCount}
+            rightCount={counts.rightCount}
             currentQuestionIndex={appState.currentQuestionIndex}
             questions={questions}
             previousQuestion={previousQuestion}
