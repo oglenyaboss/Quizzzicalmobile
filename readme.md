@@ -20,22 +20,26 @@ To install Quiz on your mobile device or emulator, you'll need to have Node.js, 
 1. Install Node.js: You can download and install Node.js from the official website: https://nodejs.org/en/download/
 
 2. Install React Native: You can install React Native using npm, the Node.js package manager. Open a terminal window and run the following command: 
-   
-        ```bash
-        cd quizzzical
-        
+    ```bash
+        npm install -g react-native-cli
+    ```
 
 3. Install Expo: You can install Expo using npm as well. Open a terminal window and run the following command:
-        ```bash
-            npm install -g expo-cli
-            ```
-
+    ```bash
+        npm install -g expo-cli
+    ```
 
 Once you have these tools installed, you can clone the Quiz repository and install its dependencies:
 
-1. Clone the repository: `git clone https://github.com/oglenyaboss/Quizzzicalmobile.git`
+1. Clone the repository: 
+   ```bash
+    git clone https://github.com/oglenyaboss/Quizzzicalmobile.git
+   ```
 
-2. Install the dependencies: `cd Quiz && npm install`
+2. Install the dependencies: 
+    ```bash
+    cd Quiz && npm install
+    ```
 
 That's it! You're now ready to start using Quiz on your mobile device or emulator.
 
@@ -68,10 +72,19 @@ Quiz❗ is a mobile app that allows users to take quizzes and test their knowled
 
 We welcome contributions to Quiz❗ To contribute to the app, follow these steps:
 
-1. Fork the repository and create a new branch: `git checkout -b feature/my-feature`
-2. Make your changes and commit them: `git commit -m 'Add some feature'`
-3. Push to the branch: `git push origin feature/my-feature`
-4. Submit a pull request
+1. Fork the repository and create a new branch: 
+    ```bash
+    git checkout -b feature/my-feature
+    ```
+3. Make your changes and commit them:
+    ```bash
+    git commit -m 'Add some feature'
+    ```
+4. Push to the branch:
+    ```bash
+    git push origin feature/my-feature
+    ```
+5. Submit a pull request
 
 Please follow these guidelines when contributing to Quiz❗:
 
