@@ -1,28 +1,20 @@
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from "react-native";
+import { View } from "react-native";
 import React from "react";
 import axios from "axios";
 import { customAlphabet } from "nanoid/non-secure";
 import Quiz from "./components/Quiz";
 import { decode } from "html-entities";
 import { useFonts } from "expo-font";
-import Animated, {
-  FadeInRight,
-  FadeOutLeft,
-  FadeOutDown,
-  FadeInUp,
-  FadeInDown,
-  FadeOutUp,
-  
-} from "react-native-reanimated";
-import LottieView from "lottie-react-native";
-import AnimatedView from "react-native-reanimated/src/reanimated2/component/View";
+import Animated, { FadeInRight, FadeOutLeft } from "react-native-reanimated";
 import { Audio } from "expo-av";
 import * as Haptics from "expo-haptics";
+import Lost from "./components/Lost";
+import NetworkError from "./components/NetworkError";
+import StartScreen from "./components/StartScreen";
+import Loading from "./components/Loading";
+import { styles } from "./components/Styles";
+import RightGif from "./components/RightGif";
+import BottomScreen from "./components/BottomScreen";
 
 export default function App() {
   const [sound, setSound] = React.useState();
@@ -34,10 +26,12 @@ export default function App() {
   const [wrongCount, setWrongCount] = React.useState(0);
   const [showRightGif, setShowRightGif] = React.useState(false);
   const [isNetworkError, setNetworkError] = React.useState(false);
+  const [isModalVisible, setModalVisible] = React.useState(false);
 
   const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 10);
   const [loaded] = useFonts({
-    Karla: require("./assets/Karla/static/Karla-Regular.ttf"),
+    Karla: require("./assets/Karla/Karla-VariableFont_wght.ttf"),
+    "Karla-700": require("./assets/Karla/static/Karla-Bold.ttf"),
     "Inter-500": require("./assets/Inter/static/Inter-Regular.ttf"),
     "Inter-700": require("./assets/Inter/static/Inter-Bold.ttf"),
   });
@@ -83,12 +77,29 @@ export default function App() {
     return shuffledArray;
   };
 
-  async function playSound() {
+  async function playSound(name) {
     console.log(wrongCount);
     console.log("Loading Sound");
-    const { sound } = await Audio.Sound.createAsync(
+    let { sound } = await Audio.Sound.createAsync(
       require("./assets/Sounds/whoosh.mp3")
     );
+    if (name === "correct") {
+      ({ sound } = await Audio.Sound.createAsync(
+        require("./assets/Sounds/correct.mp3")
+      ));
+    } else if (name === "wrong") {
+      ({ sound } = await Audio.Sound.createAsync(
+        require("./assets/Sounds/wrong.mp3")
+      ));
+    } else if (name === "whoosh") {
+      ({ sound } = await Audio.Sound.createAsync(
+        require("./assets/Sounds/whoosh.mp3")
+      ));
+    } else {
+      ({ sound } = await Audio.Sound.createAsync(
+        require("./assets/Sounds/sad.mp3")
+      ));
+    }
     setSound(sound);
 
     console.log("Playing Sound");
@@ -203,7 +214,7 @@ export default function App() {
 
         if (rightAnswer && rightAnswer.isHeld) {
           setRightCount((count) => count + 1);
-          playCorrectSound();
+          playSound("correct");
           setTimeout(
             () =>
               Haptics.notificationAsync(
@@ -215,14 +226,14 @@ export default function App() {
           wrongCountNum++;
           setWrongCount(wrongCountNum);
           console.log(wrongCount + " count ");
-          playSadSound();
+          playSound();
           setTimeout(
             () =>
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error),
             250
           );
         } else {
-          playWrongSound();
+          playSound("wrong");
           setTimeout(
             () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy),
             250
@@ -236,19 +247,6 @@ export default function App() {
       })
     );
   }
-
-  function nextQuestion() {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setShowRightGif(false);
-    }
-    if (currentQuestionIndex === questions.length - 1) {
-      fetchTriviaData();
-      setCurrentQuestionIndex(0);
-      console.log("end");
-    }
-  }
-
   function previousQuestion() {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
@@ -276,7 +274,7 @@ export default function App() {
       fetchTriviaData();
       setIsStarted(true);
     }
-    await playSound();
+    await playSound("whoosh");
     setCurrentQuestionIndex((index) => index + 1);
     setIsLoaded(true);
     setShowRightGif(false);
@@ -288,111 +286,13 @@ export default function App() {
   return (
     <View style={[styles.container]}>
       {isLoaded === false ? (
-        <Animated.View
-          entering={FadeInRight.duration(500)}
-          exiting={FadeOutLeft.duration(500)}
-        >
-          <LottieView
-            style={{width: 200 }}
-            source={require("./assets/Animations/CLOCK.json")}
-            loop
-            autoPlay
-          />
-        </Animated.View>
+        <Loading />
       ) : isNetworkError === true ? (
-        <View style={[styles.container]}>
-          <Animated.View
-            entering={FadeInUp.duration(500)}
-            exiting={FadeOutDown.duration(100)}
-          >
-            <LottieView
-              style={{ width: 200, height: 200 }}
-              source={require("./assets/Animations/SAD.json")}
-              loop
-              autoPlay
-            />
-          </Animated.View>
-          <Animated.Text
-            style={[styles.rightCount, { fontSize: 30, color: "#F8BCBC" }]}
-            entering={FadeInRight.duration(500)}
-            exiting={FadeOutLeft.duration(100)}
-          >
-            NETWORK ERROR ⚠️
-          </Animated.Text>
-          <TouchableOpacity onPress={fetchTriviaData}>
-            <Animated.Text
-              entering={FadeInDown.duration(500)}
-              exiting={FadeOutDown.duration(100)}
-              style={[styles.buttonText, { fontSize: 20 }]}
-            >
-              Try again
-            </Animated.Text>
-          </TouchableOpacity>
-        </View>
+        <NetworkError fetchTriviaData={fetchTriviaData} />
       ) : isStarted === false ? (
-        <View>
-          <AnimatedView
-            entering={FadeInDown.duration(500).delay(250)}
-            exiting={FadeOutUp.duration(500)}
-            style={styles.container}
-          >
-            <TouchableOpacity onPress={newGame}>
-              <Text style={[styles.rightCount, { fontSize: 40 }]}>
-                {" "}
-                Quiz <Text style={styles.emoji}>❗</Text>
-              </Text>
-            </TouchableOpacity>
-          </AnimatedView>
-        </View>
+        <StartScreen newGame={newGame} />
       ) : wrongCount > 0 ? (
-        <View style={[styles.container]}>
-          <Animated.View
-            entering={FadeInRight.duration(500)}
-            exiting={FadeOutLeft.duration(500)}
-          >
-            <LottieView
-              style={{ height: 200, width: 200 }}
-              source={require("./assets/Animations/shocked.json")}
-              loop
-              autoPlay
-            />
-          </Animated.View>
-          <Animated.Text
-            entering={FadeInDown.duration(500)}
-            exiting={FadeOutDown.duration(500)}
-            style={[
-              styles.rightCount,
-              {
-                fontSize: 30,
-                marginTop: 20,
-                marginBottom: 20,
-                color: "#F8BCBC",
-              },
-            ]}
-          >
-            YOU LOST
-          </Animated.Text>
-          <Animated.View
-            entering={FadeInDown.duration(500)}
-            exiting={FadeOutDown.duration(500)}
-          >
-            <TouchableOpacity
-              style={{
-                borderWidth: 1,
-                width: 200,
-                height: 50,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 20,
-              }}
-              onPress={newGame}
-            >
-              <Text style={[styles.buttonText, { fontSize: 20 }]}>
-                New game
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
+        <Lost newGame={newGame} />
       ) : (
         <Animated.View
           entering={FadeInRight.duration(500).delay(500)}
@@ -400,21 +300,7 @@ export default function App() {
           style={[styles.container]}
         >
           <View style={{ alignItems: "center", width: "100%", height: "15%" }}>
-            {showRightGif === true && (
-              <Animated.View
-                entering={FadeInUp.duration(500)}
-                exiting={FadeOutUp.duration(500)}
-                style={{ justifyContent: "center", alignItems: "center" }}
-              >
-                <LottieView
-                  style={{ width: 100, height: 100 }}
-                  source={require("./assets/LAMP.json")}
-                  loop
-                  autoPlay
-                  renderMode="SOFTWARE"
-                />
-              </Animated.View>
-            )}
+            {showRightGif === true && <RightGif />}
           </View>
           <View
             style={{
@@ -430,105 +316,16 @@ export default function App() {
               nextQuestion={nextQuestion}
             />
           </View>
-          <View
-            style={{
-              flexDirection: "row",
-            }}
-          >
-            <Text style={[styles.rightCount]}>Correct streak:</Text>
-            <Animated.Text
-              key={rightCount}
-              entering={FadeInUp.duration(250)}
-              exiting={FadeOutDown.duration(250)}
-              style={[styles.rightCount]}
-            >
-              {` ${rightCount} `}
-            </Animated.Text>
-            <LottieView 
-              style={{width: 30, height: 30, scaleX: 0.25, scaleY: 0.25 }}
-              source={require("./assets/Animations/✅.json")}
-              ref={animationRef}
-              loop={false}
-            />
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <View
-              style={
-                currentQuestionIndex === 0
-                  ? styles.buttonsContainerStart
-                  : styles.buttonsContainer
-              }
-            >
-              {currentQuestionIndex > 0 && (
-                <TouchableOpacity
-                  style={{ alignItems: "center" }}
-                  onPress={previousQuestion}
-                >
-                  <Text style={styles.emoji}>⬅️</Text>
-                  <Text style={styles.buttonText}>Prev</Text>
-                </TouchableOpacity>
-              )}
-              {currentQuestionIndex < questions.length && (
-                <TouchableOpacity
-                  style={{ alignItems: "center" }}
-                  onPress={nextQuestion}
-                >
-                  <Text style={styles.emoji}>➡️</Text>
-                  <Text style={styles.buttonText}>Next</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
+          <BottomScreen
+            rightCount={rightCount}
+            currentQuestionIndex={currentQuestionIndex}
+            questions={questions}
+            previousQuestion={previousQuestion}
+            nextQuestion={nextQuestion}
+            animationRef={animationRef}
+          />
         </Animated.View>
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: "100%",
-    backgroundColor: "#F5F7FB",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  rightCount: {
-    fontFamily: "Inter-700",
-    color: "#293264",
-    fontSize: 25,
-  },
-  buttonsContainer: {
-    marginTop: 20,
-    width: "60%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  buttonsContainerStart: {
-    marginTop: 20,
-    width: "60%",
-    flexDirection: "row",
-    justifyContent: "flex-end",
-  },
-  emoji: {
-    fontSize: 40,
-  },
-  buttonText: {
-    fontFamily: "Inter-500",
-    color: "#293264",
-    fontSize: 15,
-  },
-  button: {
-    width: "60%",
-    minWidth: "60%",
-    minHeight: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: "20px",
-    borderStyle: "solid",
-    borderWidth: "1px",
-    borderColor: "#4D5B9E",
-    marginBottom: "2%",
-    padding: "2%",
-  },
-});
