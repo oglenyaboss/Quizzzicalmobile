@@ -21,19 +21,19 @@ To install Quiz on your mobile device or emulator, you'll need to have Node.js, 
 
 2. Install React Native: You can install React Native using npm, the Node.js package manager. Open a terminal window and run the following command: 
     ```bash
-        npm install -g react-native-cli
+    npm install -g react-native-cli
     ```
 
 3. Install Expo: You can install Expo using npm as well. Open a terminal window and run the following command:
     ```bash
-        npm install -g expo-cli
+    npm install -g expo-cli
     ```
 
 Once you have these tools installed, you can clone the Quiz repository and install its dependencies:
 
 1. Clone the repository: 
    ```bash
-    git clone https://github.com/oglenyaboss/Quizzzicalmobile.git
+   git clone https://github.com/oglenyaboss/Quizzzicalmobile.git
    ```
 
 2. Install the dependencies: 
