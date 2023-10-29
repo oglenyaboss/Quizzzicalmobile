@@ -7,7 +7,7 @@ import {
 import React from "react";
 import axios from "axios";
 import { customAlphabet } from "nanoid/non-secure";
-import Quiz from "./Quiz";
+import Quiz from "./components/Quiz";
 import { decode } from "html-entities";
 import { useFonts } from "expo-font";
 import Animated, {
@@ -37,9 +37,9 @@ export default function App() {
 
   const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 10);
   const [loaded] = useFonts({
-    Karla: require("../assets/Karla/static/Karla-Regular.ttf"),
-    "Inter-500": require("../assets/Inter/static/Inter-Regular.ttf"),
-    "Inter-700": require("../assets/Inter/static/Inter-Bold.ttf"),
+    Karla: require("./assets/Karla/static/Karla-Regular.ttf"),
+    "Inter-500": require("./assets/Inter/static/Inter-Regular.ttf"),
+    "Inter-700": require("./assets/Inter/static/Inter-Bold.ttf"),
   });
 
   const animationRef = React.useRef(null);
@@ -87,7 +87,7 @@ export default function App() {
     console.log(wrongCount);
     console.log("Loading Sound");
     const { sound } = await Audio.Sound.createAsync(
-      require("../assets/Sounds/whoosh.mp3")
+      require("./assets/Sounds/whoosh.mp3")
     );
     setSound(sound);
 
@@ -98,7 +98,7 @@ export default function App() {
   async function playSadSound() {
     console.log("Loading Sound");
     const { sound } = await Audio.Sound.createAsync(
-      require("../assets/Sounds/sad.mp3")
+      require("./assets/Sounds/sad.mp3")
     );
     setSound(sound);
 
@@ -109,7 +109,7 @@ export default function App() {
   async function playCorrectSound() {
     console.log("Loading Sound");
     const { sound } = await Audio.Sound.createAsync(
-      require("../assets/Sounds/correct.mp3")
+      require("./assets/Sounds/correct.mp3")
     );
     setSound(sound);
 
@@ -120,7 +120,7 @@ export default function App() {
   async function playWrongSound() {
     console.log("Loading Sound");
     const { sound } = await Audio.Sound.createAsync(
-      require("../assets/Sounds/wrong.mp3")
+      require("./assets/Sounds/wrong.mp3")
     );
     setSound(sound);
 
@@ -294,7 +294,7 @@ export default function App() {
         >
           <LottieView
             style={{width: 200 }}
-            source={require("../assets/Animations/CLOCK.json")}
+            source={require("./assets/Animations/CLOCK.json")}
             loop
             autoPlay
           />
@@ -307,7 +307,7 @@ export default function App() {
           >
             <LottieView
               style={{ width: 200, height: 200 }}
-              source={require("../assets/Animations/SAD.json")}
+              source={require("./assets/Animations/SAD.json")}
               loop
               autoPlay
             />
@@ -352,7 +352,7 @@ export default function App() {
           >
             <LottieView
               style={{ height: 200, width: 200 }}
-              source={require("../assets/Animations/shocked.json")}
+              source={require("./assets/Animations/shocked.json")}
               loop
               autoPlay
             />
@@ -408,7 +408,7 @@ export default function App() {
               >
                 <LottieView
                   style={{ width: 100, height: 100 }}
-                  source={require("../assets/LAMP.json")}
+                  source={require("./assets/LAMP.json")}
                   loop
                   autoPlay
                   renderMode="SOFTWARE"
@@ -446,7 +446,7 @@ export default function App() {
             </Animated.Text>
             <LottieView 
               style={{width: 30, height: 30, scaleX: 0.25, scaleY: 0.25 }}
-              source={require("../assets/Animations/✅.json")}
+              source={require("./assets/Animations/✅.json")}
               ref={animationRef}
               loop={false}
             />
