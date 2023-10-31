@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { View, Modal } from "react-native";
 import React from "react";
 import axios from "axios";
 import { customAlphabet } from "nanoid/non-secure";
@@ -15,19 +15,27 @@ import Loading from "./components/Loading";
 import { styles } from "./components/Styles";
 import RightGif from "./components/RightGif";
 import BottomScreen from "./components/BottomScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import PieChart from "./components/PieChart";
 
 export default function App() {
+  //TODO: create achievements and NFT
   const [sound, setSound] = React.useState();
   const [questions, setQuestions] = React.useState(null);
   const [appState, setAppState] = React.useState({
     isStarted: false,
     isLoaded: false,
+    isLost: false,
     currentQuestionIndex: 0,
     showRightGif: false,
     isNetworkError: false,
     isModalVisible: false,
   });
   const [counts, setCounts] = React.useState({
+    rightCount: 0,
+    wrongCount: 0,
+  });
+  const [stats, setStats] = React.useState({
     rightCount: 0,
     wrongCount: 0,
   });
@@ -45,11 +53,16 @@ export default function App() {
 
   React.useEffect(() => {
     fetchTriviaData();
+    getData();
   }, []);
 
   React.useEffect(() => {
+    saveData();
+  }, [stats.wrongCount, counts.rightCount]);
+
+  React.useEffect(() => {
     animationRef.current?.play(0, 150);
-  }, [counts.rightCount]);
+  }, [stats.rightCount]);
 
   React.useEffect(() => {
     return sound
@@ -69,6 +82,32 @@ export default function App() {
   function removeHtmlTags(str) {
     return decode(str);
   }
+
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem("wrongCount", stats.wrongCount.toString());
+      await AsyncStorage.setItem("rightCount", stats.rightCount.toString());
+      console.log(stats.wrongCount, stats.rightCount + "save");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getData = async () => {
+    try {
+      const wrongCount = await AsyncStorage.getItem("wrongCount");
+      const rightCount = await AsyncStorage.getItem("rightCount");
+      console.log(wrongCount, rightCount + "get");
+      if (wrongCount !== null && rightCount !== null) {
+        setStats({
+          wrongCount: parseInt(wrongCount),
+          rightCount: parseInt(rightCount),
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const shuffleArray = (array) => {
     const shuffledArray = [...array];
@@ -180,10 +219,11 @@ export default function App() {
 
         const rightAnswer = updatedAnswers.find((answer) => answer.isCorrect);
 
-        let wrongCountNum = 0;
-
         if (rightAnswer && rightAnswer.isHeld) {
           setCounts({ ...counts, rightCount: counts.rightCount + 1 });
+          setStats((prevState) => {
+            return { ...prevState, rightCount: prevState.rightCount + 1 };
+          });
           playSound("correct");
           setTimeout(
             () =>
@@ -193,8 +233,11 @@ export default function App() {
             250
           );
         } else if (counts.rightCount > 0) {
-          wrongCountNum++;
-          setCounts({ ...counts, wrongCount: wrongCountNum });
+          setAppState({ ...appState, isLost: true });
+          setCounts({ ...counts, wrongCount: counts.wrongCount + 1 });
+          setStats((prevState) => {
+            return { ...prevState, wrongCount: prevState.wrongCount + 1 };
+          });
           playSound();
           setTimeout(
             () =>
@@ -202,6 +245,9 @@ export default function App() {
             250
           );
         } else {
+          setStats((prevState) => {
+            return { ...prevState, wrongCount: prevState.wrongCount + 1 };
+          });
           playSound("wrong");
           setTimeout(
             () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy),
@@ -209,7 +255,7 @@ export default function App() {
           );
         }
 
-        wrongCountNum === 0 &&
+        appState.isLost === false &&
           setTimeout(() => nextQuestion(), isRight ? 2000 : 1000);
 
         return { ...question, isChecked: true, answers: updatedAnswers };
@@ -228,12 +274,12 @@ export default function App() {
 
   function newGame() {
     if (appState.currentQuestionIndex === 0) {
-      console.log(JSON.stringify(appState));
       setAppState({
         ...appState,
         isLoaded: true,
         isStarted: true,
         currentQuestionIndex: 0,
+        isLost: false,
       });
       setCounts({
         rightCount: 0,
@@ -272,47 +318,7 @@ export default function App() {
 
   return (
     <View style={[styles.container]}>
-      {appState.isLoaded === false ? (
-        <Loading />
-      ) : appState.isNetworkError === true ? (
-        <NetworkError fetchTriviaData={fetchTriviaData} />
-      ) : appState.isStarted === false ? (
-        <StartScreen newGame={newGame} />
-      ) : counts.wrongCount > 0 ? (
-        <Lost newGame={newGame} />
-      ) : (
-        <Animated.View
-          entering={FadeInRight.duration(500).delay(500)}
-          exiting={FadeOutLeft.duration(500)}
-          style={[styles.container]}
-        >
-          <View style={{ alignItems: "center", width: "100%", height: "15%" }}>
-            {appState.showRightGif === true && <RightGif />}
-          </View>
-          <View
-            style={{
-              height: "50%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Quiz
-              currentQuestion={currentQuestion}
-              key={currentQuestion.id}
-              holdAnswer={holdAnswer}
-              nextQuestion={nextQuestion}
-            />
-          </View>
-          <BottomScreen
-            rightCount={counts.rightCount}
-            currentQuestionIndex={appState.currentQuestionIndex}
-            questions={questions}
-            previousQuestion={previousQuestion}
-            nextQuestion={nextQuestion}
-            animationRef={animationRef}
-          />
-        </Animated.View>
-      )}
+      <PieChart></PieChart>
     </View>
   );
 }
