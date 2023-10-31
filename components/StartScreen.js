@@ -20,11 +20,17 @@ import PieChart from "react-native-pie-chart";
 
 export default function StartScreen(props) {
   const animationRef = React.useRef(null);
+  const animationRef2 = React.useRef(null);
   const [showModal, setShowModal] = React.useState(false);
 
   function openStats() {
     setShowModal((prev) => !prev);
     animationRef.current?.play();
+  }
+
+  function openAchievements() {
+    setShowModal((prev) => !prev);
+    animationRef2.current?.play();
   }
 
   const chart_wh = 150;
@@ -151,21 +157,42 @@ export default function StartScreen(props) {
             </BlurView>
           </TouchableWithoutFeedback>
         </Modal>
-        <TouchableOpacity onPress={props.newGame}>
-          <Text style={[styles.rightCount, { fontSize: 40 }]}>
-            {" "}
-            Quiz <Text style={styles.emoji}>❗</Text>
-          </Text>
-        </TouchableOpacity>
-        <View style={{ borderWidth: 1 }}>
-          <TouchableOpacity onPress={openStats}>
-            <LottieView
-              source={require("../assets/Animations/GRAPH.json")}
-              style={{ width: 25, height: 25 }}
-              ref={animationRef}
-              loop={false}
-            />
-          </TouchableOpacity>
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <View style={{ alignItems: "center" }}>
+            <TouchableOpacity onPress={props.newGame}>
+              <Text style={[styles.rightCount, { fontSize: 40 }]}>
+                {" "}
+                Quiz <Text style={styles.emoji}>❗</Text>
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              position: "absolute",
+              width: 150,
+              bottom: 0,
+              marginBottom: "20%",
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <TouchableOpacity onPress={openStats}>
+              <LottieView
+                source={require("../assets/Animations/GRAPH.json")}
+                style={{ width: 50, height: 50 }}
+                ref={animationRef}
+                loop={false}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={openAchievements}>
+              <LottieView
+                source={require("../assets/Animations/MEDAL.json")}
+                style={{ width: 50, height: 50 }}
+                ref={animationRef2}
+                loop={false}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </Animated.View>
     </View>
