@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.oglenyaboss.quizzzicalmobile"
@@ -30,7 +28,7 @@
       }
     },
     "runtimeVersion": {
-      "policy": "appVersion"
+      "policy": "sdkVersion"
     },
     "updates": {
       "url": "https://u.expo.dev/385241d7-e7c1-4c37-bcf0-238c22cae8f3"

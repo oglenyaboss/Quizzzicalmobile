@@ -16,7 +16,6 @@ import { styles } from "./components/Styles";
 import RightGif from "./components/RightGif";
 import BottomScreen from "./components/BottomScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import PieChart from "./components/PieChart";
 
 export default function App() {
   //TODO: create achievements and NFT
@@ -318,7 +317,47 @@ export default function App() {
 
   return (
     <View style={[styles.container]}>
-      <PieChart></PieChart>
+      {appState.isLoaded === false ? (
+        <Loading />
+      ) : appState.isNetworkError === true ? (
+        <NetworkError fetchTriviaData={fetchTriviaData} />
+      ) : appState.isStarted === false ? (
+        <StartScreen newGame={newGame} />
+      ) : counts.wrongCount > 0 ? (
+        <Lost newGame={newGame} />
+      ) : (
+        <Animated.View
+          entering={FadeInRight.duration(500).delay(500)}
+          exiting={FadeOutLeft.duration(500)}
+          style={[styles.container]}
+        >
+          <View style={{ alignItems: "center", width: "100%", height: "15%" }}>
+            {appState.showRightGif === true && <RightGif />}
+          </View>
+          <View
+            style={{
+              height: "50%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Quiz
+              currentQuestion={currentQuestion}
+              key={currentQuestion.id}
+              holdAnswer={holdAnswer}
+              nextQuestion={nextQuestion}
+            />
+          </View>
+          <BottomScreen
+            rightCount={counts.rightCount}
+            currentQuestionIndex={appState.currentQuestionIndex}
+            questions={questions}
+            previousQuestion={previousQuestion}
+            nextQuestion={nextQuestion}
+            animationRef={animationRef}
+          />
+        </Animated.View>
+      )}
     </View>
   );
 }
