@@ -21,8 +21,8 @@ export default function App() {
   //TODO: create achievements and NFT
   const [sound, setSound] = React.useState();
   const [questions, setQuestions] = React.useState(null);
-  const [isStarted, setIsStarted] = React.useState(false);
   const [appState, setAppState] = React.useState({
+    isStarted: false,
     isLoaded: false,
     isLost: false,
     currentQuestionIndex: 0,
@@ -189,7 +189,7 @@ export default function App() {
       setAppState({ ...appState, isNetworkError: true });
       console.error("Произошла ошибка при выполнении запроса:", error);
     } finally {
-      setIsStarted(false);
+      setAppState({ ...appState, isStarted: false });
       setTimeout(() => setAppState({ ...appState, isLoaded: true }), 1500);
     }
   };
@@ -276,10 +276,10 @@ export default function App() {
       setAppState({
         ...appState,
         isLoaded: true,
+        isStarted: true,
         currentQuestionIndex: 0,
         isLost: false,
       });
-      setIsStarted(true);
       setCounts({
         rightCount: 0,
         wrongCount: 0,
@@ -287,6 +287,7 @@ export default function App() {
     } else {
       setAppState({
         ...appState,
+        isStarted: false,
         isLoaded: false,
         currentQuestionIndex: 0,
       });
@@ -294,15 +295,13 @@ export default function App() {
         rightCount: 0,
         wrongCount: 0,
       });
-      setIsStarted(true);
       fetchTriviaData();
-      console.log(JSON.stringify(appState));
     }
   }
   async function nextQuestion() {
     if (appState.currentQuestionIndex === questions.length - 1) {
       fetchTriviaData();
-      setIsStarted(true);
+      setAppState({ ...appState, isStarted: true });
     }
     await playSound("whoosh");
     setAppState({
@@ -322,12 +321,8 @@ export default function App() {
         <Loading />
       ) : appState.isNetworkError === true ? (
         <NetworkError fetchTriviaData={fetchTriviaData} />
-      ) : isStarted === false ? (
-        <StartScreen
-          newGame={newGame}
-          wrong={stats.wrongCount}
-          right={stats.rightCount}
-        />
+      ) : appState.isStarted === false ? (
+        <StartScreen newGame={newGame} />
       ) : counts.wrongCount > 0 ? (
         <Lost newGame={newGame} />
       ) : (
