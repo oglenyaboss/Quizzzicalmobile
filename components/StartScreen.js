@@ -8,7 +8,15 @@ import {
 } from "react-native";
 import { styles } from "./Styles";
 import LottieView from "lottie-react-native";
-import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
+import Animated, {
+  FadeInDown,
+  FadeOutUp,
+  FadeInUp,
+  FadeInLeft,
+  FadeInRight,
+} from "react-native-reanimated";
+import { BlurView } from "expo-blur";
+import PieChart from "react-native-pie-chart";
 
 export default function StartScreen(props) {
   const animationRef = React.useRef(null);
@@ -18,6 +26,35 @@ export default function StartScreen(props) {
     setShowModal((prev) => !prev);
     animationRef.current?.play();
   }
+
+  const chart_wh = 150;
+  const series = [props.right, props.wrong];
+  const sliceColor = ["#94D7A2", "#F8BCBC"];
+  const total = props.right + props.wrong;
+
+  const totalColor = (total) => {
+    if (total < 50) {
+      return "#ff5e5e";
+    } else if (total < 75) {
+      return "#F8BCBD";
+    } else if (total < 150) {
+      return "#3dc4b5";
+    } else if (total < 300) {
+      return "#1fff69";
+    }
+  };
+
+  const percentColor = (percent) => {
+    if (percent < 10) {
+      return "#ff5e5e";
+    } else if (percent < 25) {
+      return "#F8BCBD";
+    } else if (percent < 50) {
+      return "#3dc4b5";
+    } else if (percent < 75) {
+      return "#1fff69";
+    }
+  };
 
   //TODO:CREATE STATS PIE
   return (
@@ -36,15 +73,82 @@ export default function StartScreen(props) {
           }}
         >
           <TouchableWithoutFeedback onPress={openStats}>
-            <Animated.View
-              entering={FadeInDown.duration(500).delay(250)}
-              exiting={FadeOutUp.duration(500)}
-              style={styles.modal}
-            >
-              <View style={{ height: 100 }}>
-                <Text>Stats</Text>
-              </View>
-            </Animated.View>
+            <BlurView style={styles.modal} intensity={95} tint="light">
+              <Animated.View
+                entering={FadeInDown.duration(500).delay(250)}
+                exiting={FadeOutUp.duration(500)}
+                style={styles.modal}
+              >
+                <View style={[styles.stats]}>
+                  <Animated.View
+                    entering={FadeInUp.duration(500).delay(250)}
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginBottom: 20,
+                    }}
+                  >
+                    <Animated.Text
+                      entering={FadeInLeft.duration(500).delay(500)}
+                      style={styles.wrongModalCount}
+                    >
+                      {props.wrong}
+                    </Animated.Text>
+                    <PieChart
+                      style={{ marginLeft: 15, marginRight: 15 }}
+                      widthAndHeight={chart_wh}
+                      series={series}
+                      sliceColor={sliceColor}
+                      doughnut={true}
+                      coverRadius={0.45}
+                      coverFill={"#FFF"}
+                    />
+                    <Animated.Text
+                      entering={FadeInRight.duration(500).delay(500)}
+                      style={styles.rightModalCount}
+                    >
+                      {props.right}
+                    </Animated.Text>
+                  </Animated.View>
+                  <View style={{ flexDirection: "row" }}>
+                    <Animated.Text
+                      entering={FadeInLeft.duration(500).delay(750)}
+                      style={[styles.rightCount]}
+                    >
+                      Total:{" "}
+                    </Animated.Text>
+                    <Animated.Text
+                      entering={FadeInRight.duration(500).delay(750)}
+                      style={[styles.rightCount, { color: totalColor(total) }]}
+                    >
+                      {total}
+                    </Animated.Text>
+                  </View>
+                  <Animated.Text
+                    entering={FadeInDown.duration(500).delay(1000)}
+                    style={styles.rightCount}
+                  >
+                    Accuracy:{" "}
+                    <Animated.Text
+                      style={[
+                        styles.rightCount,
+                        {
+                          color: percentColor(
+                            (props.right / (props.right + props.wrong)) * 100
+                          ),
+                        },
+                      ]}
+                    >
+                      {Math.round(
+                        (props.right / (props.right + props.wrong)) * 100
+                      )}
+                    </Animated.Text>
+                    <Text style={{ fontSize: 20 }}> %</Text>
+                  </Animated.Text>
+                </View>
+              </Animated.View>
+            </BlurView>
           </TouchableWithoutFeedback>
         </Modal>
         <TouchableOpacity onPress={props.newGame}>

@@ -18,11 +18,35 @@ export const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.5)", // semi-transparent white
+  },
+  stats: {
+    padding: 20,
+    width: 300,
+    height: 300,
+    borderRadius: 30,
+    justifyContent: "space-between",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 5,
+    backgroundColor: "#fff",
+    opacity: 0.5,
   },
   rightCount: {
     fontFamily: "Inter-700",
     color: "#293264",
+    fontSize: 25,
+  },
+  rightModalCount: {
+    fontFamily: "Inter-700",
+    color: "#94D7A2",
+    fontSize: 25,
+  },
+  wrongModalCount: {
+    fontFamily: "Inter-700",
+    color: "#F8BCBC",
     fontSize: 25,
   },
   buttonsContainer: {
