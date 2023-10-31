@@ -322,7 +322,11 @@ export default function App() {
       ) : appState.isNetworkError === true ? (
         <NetworkError fetchTriviaData={fetchTriviaData} />
       ) : appState.isStarted === false ? (
-        <StartScreen newGame={newGame} />
+        <StartScreen
+          newGame={newGame}
+          wrong={stats.wrongCount}
+          right={stats.rightCount}
+        />
       ) : counts.wrongCount > 0 ? (
         <Lost newGame={newGame} />
       ) : (
