@@ -1,6 +1,36 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+  achievement: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: "100%",
+  },
+  achievementLocked: {
+    opacity: 0.5,
+  },
+  achievementUnlocked: {
+    opacity: 1,
+  },
+  achievementTitle: {
+    fontFamily: "Inter-700",
+    fontSize: 30,
+    color: "#293264",
+  },
+  achievementContainer: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: "100%",
+    height: "100%",
+  },
+  achievementDescription: {
+    width: "100%",
+    fontFamily: "Inter-500",
+    fontSize: 10,
+    color: "#293264",
+  },
   container: {
     flex: 1,
     width: "100%",
@@ -32,7 +62,7 @@ export const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     backgroundColor: "#fff",
-    opacity: 0.5,
+    opacity: 0.8,
   },
   rightCount: {
     fontFamily: "Inter-700",
