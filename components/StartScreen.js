@@ -17,26 +17,39 @@ import Animated, {
 } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
 import PieChart from "react-native-pie-chart";
+import Achievement from "./Achievement";
+import GestureRecognizer from "react-native-swipe-gestures";
 
 export default function StartScreen(props) {
   const animationRef = React.useRef(null);
   const animationRef2 = React.useRef(null);
   const [showModal, setShowModal] = React.useState(false);
+  const [modalType, setModalType] = React.useState("stats");
+  const [currentAchievementIndex, setCurrentAchievementIndex] =
+    React.useState(0);
 
   function openStats() {
     setShowModal((prev) => !prev);
     animationRef.current?.play();
+    setModalType("stats");
   }
 
   function openAchievements() {
     setShowModal((prev) => !prev);
     animationRef2.current?.play();
+    setModalType("achievements");
+  }
+
+  function closeModal() {
+    setShowModal(false);
   }
 
   const chart_wh = 150;
-  const series = [props.right, props.wrong];
+  const series =
+    props.right + props.wrong > 0 ? [props.right, props.wrong] : [1, 1];
   const sliceColor = ["#94D7A2", "#F8BCBC"];
   const total = props.right + props.wrong;
+  const percent = props.wrong + props.right > 0 ? props.right / total : 0;
 
   const totalColor = (total) => {
     if (total < 50) {
@@ -62,7 +75,27 @@ export default function StartScreen(props) {
     }
   };
 
-  //TODO:CREATE STATS PIE
+  function nextAchievement() {
+    if (currentAchievementIndex < props.achievements.length - 1) {
+      setCurrentAchievementIndex((prev) => prev + 1);
+    } else {
+      setCurrentAchievementIndex(0);
+    }
+  }
+
+  function prevAchievement() {
+    if (currentAchievementIndex > 0) {
+      setCurrentAchievementIndex((prev) => prev - 1);
+    } else {
+      setCurrentAchievementIndex(props.achievements.length - 1);
+    }
+  }
+
+  const currentAchievement = props.achievements
+    ? props.achievements[currentAchievementIndex]
+    : null;
+
+  //TODO: Add a modal for achievements
   return (
     <View style={[styles.container, {}]}>
       <Animated.View
@@ -78,84 +111,135 @@ export default function StartScreen(props) {
             Alert.alert("Modal has been closed.");
           }}
         >
-          <TouchableWithoutFeedback onPress={openStats}>
-            <BlurView style={styles.modal} intensity={95} tint="light">
-              <Animated.View
-                entering={FadeInDown.duration(500).delay(250)}
-                exiting={FadeOutUp.duration(500)}
-                style={styles.modal}
-              >
-                <View style={[styles.stats]}>
-                  <Animated.View
-                    entering={FadeInUp.duration(500).delay(250)}
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      marginBottom: 20,
-                    }}
+          {modalType === "achievements" ? (
+            ////////////////////////////ACHIEVEMENTS///////////////////////////
+            <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+              <BlurView style={styles.modal} intensity={30} tint="light">
+                <Animated.View
+                  entering={FadeInDown.duration(500).delay(250)}
+                  exiting={FadeOutUp.duration(500)}
+                  style={[styles.modal]}
+                  onPress={() => {
+                    console.log("pressed");
+                  }}
+                >
+                  <TouchableWithoutFeedback
+                    style={[styles.modal, { borderWidth: 1 }]}
+                    onPress={(e) => e.stopPropagation()}
                   >
-                    <Animated.Text
-                      entering={FadeInLeft.duration(500).delay(500)}
-                      style={styles.wrongModalCount}
-                    >
-                      {props.wrong}
-                    </Animated.Text>
-                    <PieChart
-                      style={{ marginLeft: 15, marginRight: 15 }}
-                      widthAndHeight={chart_wh}
-                      series={series}
-                      sliceColor={sliceColor}
-                      doughnut={true}
-                      coverRadius={0.45}
-                      coverFill={"#FFF"}
-                    />
-                    <Animated.Text
-                      entering={FadeInRight.duration(500).delay(500)}
-                      style={styles.rightModalCount}
-                    >
-                      {props.right}
-                    </Animated.Text>
-                  </Animated.View>
-                  <View style={{ flexDirection: "row" }}>
-                    <Animated.Text
-                      entering={FadeInLeft.duration(500).delay(750)}
-                      style={[styles.rightCount]}
-                    >
-                      Total:{" "}
-                    </Animated.Text>
-                    <Animated.Text
-                      entering={FadeInRight.duration(500).delay(750)}
-                      style={[styles.rightCount, { color: totalColor(total) }]}
-                    >
-                      {total}
-                    </Animated.Text>
-                  </View>
-                  <Animated.Text
-                    entering={FadeInDown.duration(500).delay(1000)}
-                    style={styles.rightCount}
+                    <View style={[styles.stats]}>
+                      <Animated.View
+                        entering={FadeInUp.duration(500).delay(250)}
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginBottom: 20,
+                        }}
+                      >
+                        <View style={{ width: "100%" }}>
+                          <GestureRecognizer
+                            onSwipeLeft={nextAchievement}
+                            onSwipeRight={prevAchievement}
+                            style={{ width: "100%" }}
+                          >
+                            <Achievement achievement={currentAchievement} />
+                          </GestureRecognizer>
+                        </View>
+                      </Animated.View>
+                    </View>
+                  </TouchableWithoutFeedback>
+                </Animated.View>
+              </BlurView>
+            </TouchableWithoutFeedback>
+          ) : (
+            //////////////////////STATS///////////////////////////////////
+            <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+              <BlurView style={styles.modal} intensity={30} tint="light">
+                <Animated.View
+                  entering={FadeInDown.duration(500).delay(250)}
+                  exiting={FadeOutUp.duration(500)}
+                  style={styles.modal}
+                  onPress={() => {
+                    console.log("pressed");
+                  }}
+                >
+                  <TouchableWithoutFeedback
+                    style={[styles.stats, { borderWidth: 1 }]}
+                    onPress={(e) => e.stopPropagation()}
                   >
-                    Accuracy:{" "}
-                    <Animated.Text
-                      style={[
-                        styles.rightCount,
-                        {
-                          color: percentColor(
-                            (props.right / (props.right + props.wrong)) * 100
-                          ),
-                        },
-                      ]}
-                    >
-                      {Math.round(
-                        (props.right / (props.right + props.wrong)) * 100
-                      )}
-                    </Animated.Text>
-                    <Text style={{ fontSize: 20 }}> %</Text>
-                  </Animated.Text>
-                </View>
-              </Animated.View>
-            </BlurView>
-          </TouchableWithoutFeedback>
+                    <View style={[styles.stats]}>
+                      <Animated.View
+                        entering={FadeInUp.duration(500).delay(250)}
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginBottom: 20,
+                        }}
+                      >
+                        <Animated.Text
+                          entering={FadeInLeft.duration(500).delay(500)}
+                          style={styles.wrongModalCount}
+                        >
+                          {props.wrong}
+                        </Animated.Text>
+                        <PieChart
+                          style={{ marginLeft: 15, marginRight: 15 }}
+                          widthAndHeight={chart_wh}
+                          series={series}
+                          sliceColor={sliceColor}
+                          doughnut={true}
+                          coverRadius={0.45}
+                          coverFill={"#FFF"}
+                        />
+                        <Animated.Text
+                          entering={FadeInRight.duration(500).delay(500)}
+                          style={styles.rightModalCount}
+                        >
+                          {props.right}
+                        </Animated.Text>
+                      </Animated.View>
+                      <View style={{ flexDirection: "row" }}>
+                        <Animated.Text
+                          entering={FadeInLeft.duration(500).delay(750)}
+                          style={[styles.rightCount]}
+                        >
+                          Total:{" "}
+                        </Animated.Text>
+                        <Animated.Text
+                          entering={FadeInRight.duration(500).delay(750)}
+                          style={[
+                            styles.rightCount,
+                            { color: totalColor(total) },
+                          ]}
+                        >
+                          {total}
+                        </Animated.Text>
+                      </View>
+                      <Animated.Text
+                        entering={FadeInDown.duration(500).delay(1000)}
+                        style={styles.rightCount}
+                      >
+                        Accuracy:{" "}
+                        <Animated.Text
+                          style={[
+                            styles.rightCount,
+                            {
+                              color: percentColor(percent * 100),
+                            },
+                          ]}
+                        >
+                          {Math.round(percent * 100)}
+                        </Animated.Text>
+                        <Text style={{ fontSize: 20 }}> %</Text>
+                      </Animated.Text>
+                    </View>
+                  </TouchableWithoutFeedback>
+                </Animated.View>
+              </BlurView>
+            </TouchableWithoutFeedback>
+          )}
         </Modal>
         <View style={{ flex: 1, justifyContent: "center" }}>
           <View style={{ alignItems: "center" }}>
