@@ -25,11 +25,13 @@ export default function App() {
   const [appState, setAppState] = React.useState({
     isLoaded: false,
     isLost: false,
-    currentQuestionIndex: 0,
     showRightGif: false,
     isNetworkError: false,
     isModalVisible: false,
+    category: "any",
+    difficulty: "any",
   });
+  const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
   const [isStarted, setIsStarted] = React.useState(false);
   const [counts, setCounts] = React.useState({
     rightCount: 0,
@@ -121,6 +123,7 @@ export default function App() {
           }
         });
       });
+      saveAchievements();
     } else if (stats.rightCount === 25) {
       setAchievements((prevState) => {
         return prevState.map((achievement) => {
@@ -131,6 +134,7 @@ export default function App() {
           }
         });
       });
+      saveAchievements();
     } else if (stats.rightCount === 50) {
       setAchievements((prevState) => {
         return prevState.map((achievement) => {
@@ -141,6 +145,7 @@ export default function App() {
           }
         });
       });
+      saveAchievements();
     } else if (stats.rightCount === 100) {
       setAchievements((prevState) => {
         return prevState.map((achievement) => {
@@ -151,6 +156,7 @@ export default function App() {
           }
         });
       });
+      saveAchievements();
     } else if (stats.rightCount === 250) {
       setAchievements((prevState) => {
         return prevState.map((achievement) => {
@@ -161,6 +167,7 @@ export default function App() {
           }
         });
       });
+      saveAchievements();
     } else if (stats.rightCount === 500) {
       setAchievements((prevState) => {
         return prevState.map((achievement) => {
@@ -171,6 +178,7 @@ export default function App() {
           }
         });
       });
+      saveAchievements();
     } else if (stats.rightCount === 1000) {
       setAchievements((prevState) => {
         return prevState.map((achievement) => {
@@ -181,16 +189,22 @@ export default function App() {
           }
         });
       });
+      saveAchievements();
     } else {
       return;
     }
+    saveAchievements();
   }, [stats]);
 
   React.useEffect(() => {
     fetchTriviaData();
-    // getData();
-    // getAchievements();
+    getData();
+    getAchievements();
   }, []);
+
+  React.useEffect(() => {
+    fetchTriviaData();
+  }, [appState.category, appState.difficulty]);
 
   React.useEffect(() => {
     saveData();
@@ -203,7 +217,6 @@ export default function App() {
   React.useEffect(() => {
     return sound
       ? () => {
-          console.log("Unloading Sound");
           sound.unloadAsync();
         }
       : undefined;
@@ -213,11 +226,20 @@ export default function App() {
     if (loaded) {
       console.log(currentQuestion.correct_answer);
     }
-  }, [appState.currentQuestionIndex]);
+  }, [currentQuestionIndex]);
 
   function removeHtmlTags(str) {
     return decode(str);
   }
+
+  // Function to modify category and difficulty
+  const modifyAppState = (newCategory, newDifficulty) => {
+    setAppState((prevState) => ({
+      ...prevState,
+      category: newCategory,
+      difficulty: newDifficulty,
+    }));
+  };
 
   const saveAchievements = async () => {
     try {
@@ -231,7 +253,7 @@ export default function App() {
   const getAchievements = async () => {
     try {
       const achievements = await AsyncStorage.getItem("achievements");
-      console.log(achievements + "get");
+      console.log(achievements[0].state + "get");
       if (achievements !== null) {
         setAchievements(JSON.parse(achievements));
       }
@@ -244,7 +266,6 @@ export default function App() {
     try {
       await AsyncStorage.setItem("wrongCount", stats.wrongCount.toString());
       await AsyncStorage.setItem("rightCount", stats.rightCount.toString());
-      console.log(stats.wrongCount, stats.rightCount + "save");
     } catch (e) {
       console.log(e);
     }
@@ -254,7 +275,6 @@ export default function App() {
     try {
       const wrongCount = await AsyncStorage.getItem("wrongCount");
       const rightCount = await AsyncStorage.getItem("rightCount");
-      console.log(wrongCount, rightCount + "get");
       if (wrongCount !== null && rightCount !== null) {
         setStats({
           wrongCount: parseInt(wrongCount),
@@ -279,7 +299,6 @@ export default function App() {
   };
 
   async function playSound(name) {
-    console.log("Loading Sound");
     let { sound } = await Audio.Sound.createAsync(
       require("./assets/Sounds/whoosh.mp3")
     );
@@ -302,55 +321,63 @@ export default function App() {
     }
     setSound(sound);
 
-    console.log("Playing Sound");
     await sound.playAsync();
   }
 
   const fetchTriviaData = async () => {
     try {
-      const response = await axios.get(
-        "https://opentdb.com/api.php?amount=15&type=multiple"
-      ); // Замените URL на необходимый для Trivia API
+      const link =
+        appState.category === "any" && appState.difficulty === "any"
+          ? `https://opentdb.com/api.php?amount=10&type=multiple`
+          : appState.category === "any"
+          ? `https://opentdb.com/api.php?amount=10&difficulty=${appState.difficulty}&type=multiple`
+          : appState.difficulty === "any"
+          ? `https://opentdb.com/api.php?amount=10&category=${appState.category}&type=multiple`
+          : `https://opentdb.com/api.php?amount=10&category=${appState.category}&difficulty=${appState.difficulty}&type=multiple`;
+      const response = await axios.get(link);
       if (response.status === 200) {
-        // Получите данные из ответа и установите их в состояние
-        setQuestions(
-          response.data.results.map((question) => {
-            const mergedArray = [
-              ...question.incorrect_answers,
-              question.correct_answer,
-            ];
-            const shuffledArray = shuffleArray(
-              mergedArray.map((answer) => ({
-                answerId: nanoid(),
-                text: removeHtmlTags(answer),
-                isHeld: false,
-                isCorrect: question.correct_answer === answer,
-                isRight: undefined,
-              }))
-            );
-            console.log(question.correct_answer);
-            return {
-              ...question,
-              isChecked: false,
-              correct_answer: removeHtmlTags(question.correct_answer),
-              question: removeHtmlTags(question.question),
-              answers: shuffledArray,
-              id: nanoid(),
-            };
-          })
-        );
+        const newQuestions = response.data.results.map((question) => {
+          const mergedArray = [
+            ...question.incorrect_answers,
+            question.correct_answer,
+          ];
+          const shuffledArray = shuffleArray(
+            mergedArray.map((answer) => ({
+              answerId: nanoid(),
+              text: removeHtmlTags(answer),
+              isHeld: false,
+              isCorrect: question.correct_answer === answer,
+              isRight: undefined,
+            }))
+          );
+          return {
+            ...question,
+            isChecked: false,
+            correct_answer: removeHtmlTags(question.correct_answer),
+            question: removeHtmlTags(question.question),
+            answers: shuffledArray,
+            id: nanoid(),
+          };
+        });
+
+        // Push new questions to existing questions
+        currentQuestionIndex === 0
+          ? setQuestions(() => newQuestions)
+          : setQuestions((questions) => [...questions, ...newQuestions]);
       } else {
         setAppState({ ...appState, isNetworkError: true });
-        console.error("Ошибка при запросе данных");
+        console.error("Error fetching data");
       }
     } catch (error) {
       setAppState({ ...appState, isNetworkError: true });
-      console.error("Произошла ошибка при выполнении запроса:", error);
+      console.error("Error fetching:", error);
     } finally {
-      setIsStarted(false);
-      setTimeout(() => setAppState({ ...appState, isLoaded: true }), 1500);
+      setTimeout(() => {
+        setAppState({ ...appState, isLoaded: true });
+      }, 2000);
     }
   };
+
   function holdAnswer(id, answerId) {
     setQuestions((questions) =>
       questions.map((question) => {
@@ -396,6 +423,7 @@ export default function App() {
           setStats((prevState) => {
             return { ...prevState, wrongCount: prevState.wrongCount + 1 };
           });
+          setCurrentQuestionIndex(0);
           playSound();
           setTimeout(
             () =>
@@ -419,49 +447,52 @@ export default function App() {
     );
   }
   function previousQuestion() {
-    if (appState.currentQuestionIndex > 0) {
+    if (currentQuestionIndex > 0) {
       setAppState({
         ...appState,
         showRightGif: false,
-        currentQuestionIndex: appState.currentQuestionIndex - 1,
       });
+      setCurrentQuestionIndex((prevState) => prevState - 1);
     }
   }
-
-  function newGame() {
+  async function newGame() {
     setAppState({
       ...appState,
       isLoaded: false,
-      currentQuestionIndex: 0,
       isLost: false,
     });
     setCounts({
       rightCount: 0,
       wrongCount: 0,
     });
-    setIsStarted(true);
-    fetchTriviaData();
+    setIsStarted(false);
+    setCurrentQuestionIndex(0);
+    await fetchTriviaData();
+    setTimeout(() => {
+      setAppState({ ...appState, isLoaded: true });
+    }, 2500);
   }
 
   function startGame() {
     setIsStarted(true);
   }
   async function nextQuestion() {
-    if (appState.currentQuestionIndex === questions.length - 1) {
+    if (currentQuestionIndex === questions.length - 4) {
       fetchTriviaData();
       setIsStarted(true);
     }
     await playSound("whoosh");
-    setAppState({
-      ...appState,
-      currentQuestionIndex: appState.currentQuestionIndex + 1,
-      isLoaded: true,
-      showRightGif: false,
+    setCurrentQuestionIndex((prevState) => prevState + 1);
+    setAppState((prevState) => {
+      return {
+        ...prevState,
+        showRightGif: false,
+      };
     });
   }
 
   const currentQuestion =
-    questions === null ? null : questions[appState.currentQuestionIndex];
+    questions === null ? null : questions[currentQuestionIndex];
 
   return (
     <View style={[styles.container]}>
@@ -471,6 +502,7 @@ export default function App() {
         <NetworkError fetchTriviaData={fetchTriviaData} />
       ) : isStarted === false ? (
         <StartScreen
+          modifyAppState={modifyAppState}
           newGame={startGame}
           wrong={stats.wrongCount}
           right={stats.rightCount}
@@ -480,7 +512,7 @@ export default function App() {
         <Lost newGame={newGame} />
       ) : (
         <Animated.View
-          entering={FadeInRight.duration(500).delay(500)}
+          entering={FadeInRight.duration(500).delay(1500)}
           exiting={FadeOutLeft.duration(500)}
           style={[styles.container]}
         >
@@ -518,7 +550,7 @@ export default function App() {
           </View>
           <BottomScreen
             rightCount={counts.rightCount}
-            currentQuestionIndex={appState.currentQuestionIndex}
+            currentQuestionIndex={currentQuestionIndex}
             questions={questions}
             previousQuestion={previousQuestion}
             nextQuestion={nextQuestion}
