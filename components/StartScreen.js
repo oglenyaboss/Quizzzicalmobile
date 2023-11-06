@@ -14,6 +14,7 @@ import Animated, {
   FadeInUp,
   FadeInLeft,
   FadeInRight,
+  FadeIn,
 } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
 import PieChart from "react-native-pie-chart";
@@ -212,7 +213,7 @@ export default function StartScreen(props) {
   return (
     <Animated.View
       entering={FadeInDown.duration(500).delay(250)}
-      exiting={FadeOutUp.duration(500)}
+      exiting={FadeOutUp.duration(500).delay(500)}
       style={styles.container}
     >
       <Modal
@@ -515,12 +516,12 @@ export default function StartScreen(props) {
       <View style={{ flex: 1, justifyContent: "center" }}>
         <View style={{ alignItems: "center" }}>
           <TouchableOpacity onPress={newQuiz}>
-            <Text style={[styles.rightCount, { fontSize: 40 }]}>
+            <Text style={[styles.rightCount, { fontSize: 60 }]}>
               {" "}
               Quiz
               <LottieView
                 source={require("../assets/Animations/EXCLAMATION.json")}
-                style={{ width: 50, height: 50 }}
+                style={{ width: 70, height: 70 }}
                 loop={false}
                 ref={animationRef4}
               />
@@ -530,37 +531,53 @@ export default function StartScreen(props) {
         <View
           style={{
             position: "absolute",
-            width: 150,
             bottom: 0,
-            marginBottom: "20%",
             flexDirection: "row",
-            justifyContent: "space-between",
+            left: 0,
+            right: 0,
+            justifyContent: "space-around",
+            marginBottom: 40,
           }}
         >
-          <TouchableOpacity onPress={openStats}>
-            <LottieView
-              source={require("../assets/Animations/GRAPH.json")}
-              style={{ width: 50, height: 50 }}
-              ref={animationRef}
-              loop={false}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={openAchievements}>
-            <LottieView
-              source={require("../assets/Animations/MEDAL.json")}
-              style={{ width: 50, height: 50 }}
-              ref={animationRef2}
-              loop={false}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={openSettings}>
-            <LottieView
-              source={require("../assets/Animations/SETTINGS.json")}
-              style={{ width: 50, height: 50 }}
-              ref={animationRef3}
-              loop={false}
-            />
-          </TouchableOpacity>
+          <Animated.View
+            entering={FadeInLeft.duration(500).delay(500)}
+            style={{ alignItems: "center" }}
+          >
+            <TouchableOpacity onPress={openStats}>
+              <LottieView
+                source={require("../assets/Animations/GRAPH.json")}
+                style={{ width: 40, height: 40 }}
+                ref={animationRef}
+                loop={false}
+              />
+            </TouchableOpacity>
+          </Animated.View>
+          <Animated.View
+            entering={FadeIn.duration(500).delay(750)}
+            style={{ alignItems: "center" }}
+          >
+            <TouchableOpacity onPress={openAchievements}>
+              <LottieView
+                source={require("../assets/Animations/MEDAL.json")}
+                style={{ width: 40, height: 40 }}
+                ref={animationRef2}
+                loop={false}
+              />
+            </TouchableOpacity>
+          </Animated.View>
+          <Animated.View
+            entering={FadeInRight.duration(500).delay(1000)}
+            style={{ alignItems: "center" }}
+          >
+            <TouchableOpacity onPress={openSettings}>
+              <LottieView
+                source={require("../assets/Animations/SETTINGS.json")}
+                style={{ width: 40, height: 40 }}
+                ref={animationRef3}
+                loop={false}
+              />
+            </TouchableOpacity>
+          </Animated.View>
         </View>
       </View>
     </Animated.View>

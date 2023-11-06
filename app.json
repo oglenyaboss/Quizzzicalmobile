@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.oglenyaboss.quizzzicalmobile"
@@ -19,7 +21,8 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.oglenyaboss.quizzzicalmobile"
     },
     "web": {},
     "extra": {
