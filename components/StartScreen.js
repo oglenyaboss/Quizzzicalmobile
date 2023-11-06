@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Modal,
   TouchableWithoutFeedback,
+  Button,
 } from "react-native";
 import { styles } from "./Styles";
 import LottieView from "lottie-react-native";
@@ -21,8 +22,20 @@ import PieChart from "react-native-pie-chart";
 import Achievement from "./Achievement";
 import GestureRecognizer from "react-native-swipe-gestures";
 import RNPickerSelect, { defaultStyles } from "react-native-picker-select";
+import {
+  ConnectWallet,
+  ThirdwebProvider,
+  ThirdwebSDK,
+  metamaskWallet,
+  walletConnect,
+} from "@thirdweb-dev/react-native";
+import { Mumbai } from "@thirdweb-dev/chains";
 
 export default function StartScreen(props) {
+  const sdk = new ThirdwebSDK("mumbai", {
+    clientId: "daa58531fdd7f13b87448bbe5ac5e252",
+  });
+
   const animationRef = React.useRef(null);
   const animationRef2 = React.useRef(null);
   const animationRef3 = React.useRef(null);
@@ -208,378 +221,391 @@ export default function StartScreen(props) {
   const currentAchievement = props.achievements
     ? props.achievements[currentAchievementIndex]
     : null;
+  const activeChain = Mumbai;
 
   //TODO: Add a modal for achievements
   return (
-    <Animated.View
-      entering={FadeInDown.duration(500).delay(250)}
-      exiting={FadeOutUp.duration(500).delay(500)}
-      style={styles.container}
+    <ThirdwebProvider
+      activeChain={activeChain}
+      supportedChains={[activeChain]}
+      clientId="daa58531fdd7f13b87448bbe5ac5e252"
+      supportedWallets={[
+        metamaskWallet({
+          projectId: "1b257b2ba82bb52fcff360a0a1f210c4",
+        }),
+      ]}
     >
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={showModal}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-        }}
+      <Animated.View
+        entering={FadeInDown.duration(500).delay(250)}
+        exiting={FadeOutUp.duration(500).delay(500)}
+        style={styles.container}
       >
-        {modalType === "achievements" ? (
-          ////////////////////////////ACHIEVEMENTS///////////////////////////
-          <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
-            <BlurView style={styles.modal} intensity={30} tint="light">
-              <Animated.View
-                entering={FadeInDown.duration(500).delay(250)}
-                exiting={FadeOutUp.duration(500)}
-                style={[styles.modal]}
-                onPress={() => {
-                  console.log("pressed");
-                }}
-              >
-                <TouchableWithoutFeedback
-                  style={[styles.modal, { borderWidth: 1 }]}
-                  onPress={(e) => e.stopPropagation()}
-                >
-                  <View style={[styles.stats]}>
-                    <Animated.View
-                      entering={FadeInUp.duration(500).delay(250)}
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        marginBottom: 20,
-                      }}
-                    >
-                      <View style={{ width: "100%" }}>
-                        <GestureRecognizer
-                          onSwipeLeft={nextAchievement}
-                          onSwipeRight={prevAchievement}
-                          style={{ width: "100%" }}
-                        >
-                          <Achievement achievement={currentAchievement} />
-                        </GestureRecognizer>
-                      </View>
-                    </Animated.View>
-                  </View>
-                </TouchableWithoutFeedback>
-              </Animated.View>
-            </BlurView>
-          </TouchableWithoutFeedback>
-        ) : modalType === "settings" ? (
-          //////////////////////SETTINGS///////////////////////////////////
-          <TouchableWithoutFeedback
-            onPress={() => {
-              setShowModal(false);
-              props.modifyAppState(category, difficulty);
-            }}
-          >
-            <BlurView style={styles.modal} intensity={30} tint="light">
-              <Animated.View
-                entering={FadeInDown.duration(500).delay(250)}
-                exiting={FadeOutUp.duration(500)}
-                style={styles.modal}
-                onPress={() => {
-                  console.log("pressed");
-                }}
-              >
-                <TouchableWithoutFeedback
-                  style={[styles.stats, {}]}
-                  onPress={(e) => e.stopPropagation()}
-                >
-                  <View style={[styles.stats]}>
-                    <Animated.View
-                      entering={FadeInUp.duration(500).delay(250)}
-                      style={{
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: 20,
-                        width: "100%",
-                        height: "100%",
-                      }}
-                    >
-                      <Animated.Text>
-                        <Text style={styles.rightCount}>Settings</Text>
-                      </Animated.Text>
-                      <Animated.View
-                        style={{ width: "80%", alignItems: "center" }}
-                      >
-                        <Text
-                          style={[
-                            styles.answerText,
-                            { fontSize: 20, marginBottom: 5 },
-                          ]}
-                        >
-                          Category:{" "}
-                        </Text>
-                        <RNPickerSelect
-                          style={{
-                            ...defaultStyles,
-                            inputIOS: {
-                              fontSize: 16,
-                              paddingVertical: 12,
-                              paddingHorizontal: 10,
-                              textAlign: "center",
-                              borderWidth: 1,
-                              borderColor: "#4D5B9E",
-                              borderRadius: 20,
-                              color: "#293264",
-                            },
-                            inputAndroid: {
-                              fontSize: 16,
-                              paddingVertical: 12,
-                              paddingHorizontal: 10,
-                              textAlign: "center",
-                              borderWidth: 1,
-                              borderColor: "#4D5B9E",
-                              borderRadius: 20,
-                              color: "#293264",
-                            },
-                          }}
-                          placeholder={{
-                            label: "Select a category...",
-                            value: "any",
-                          }}
-                          onValueChange={(value) => setCategory(value)}
-                          items={categories}
-                        />
-                      </Animated.View>
-                      <Animated.View
-                        style={{ width: "80%", alignItems: "center" }}
-                      >
-                        <Text
-                          style={[
-                            styles.answerText,
-                            { fontSize: 20, marginBottom: 5 },
-                          ]}
-                        >
-                          Difficulty:{" "}
-                        </Text>
-                        <RNPickerSelect
-                          style={{
-                            ...defaultStyles,
-                            inputIOS: {
-                              fontSize: 16,
-                              paddingVertical: 12,
-                              paddingHorizontal: 10,
-                              textAlign: "center",
-                              borderWidth: 1,
-                              borderColor: "#4D5B9E",
-                              borderRadius: 20,
-                              color:
-                                difficulty === "easy"
-                                  ? "#94D7A2"
-                                  : difficulty === "medium"
-                                  ? "#F8BCBC"
-                                  : difficulty === "hard"
-                                  ? "#ff5e5e"
-                                  : "#293264",
-                            },
-                            inputAndroid: {
-                              fontSize: 16,
-                              paddingVertical: 12,
-                              paddingHorizontal: 10,
-                              textAlign: "center",
-                              borderWidth: 1,
-                              borderColor: "#4D5B9E",
-                              borderRadius: 20,
-                              color:
-                                difficulty === "easy"
-                                  ? "#94D7A2"
-                                  : difficulty === "medium"
-                                  ? "#F8BCBC"
-                                  : difficulty === "hard"
-                                  ? "#ff5e5e"
-                                  : "#293264",
-                            },
-                          }}
-                          placeholder={{
-                            label: "Select a difficulty...",
-                            value: "any",
-                          }}
-                          onValueChange={(value) => setDifficulty(value)}
-                          items={[
-                            {
-                              label: "Any",
-                              value: "any",
-                            },
-                            {
-                              label: "Easy",
-                              value: "easy",
-                            },
-                            {
-                              label: "Medium",
-                              value: "medium",
-                            },
-                            {
-                              label: "Hard",
-                              value: "hard",
-                            },
-                          ]}
-                        />
-                      </Animated.View>
-                    </Animated.View>
-                  </View>
-                </TouchableWithoutFeedback>
-              </Animated.View>
-            </BlurView>
-          </TouchableWithoutFeedback>
-        ) : (
-          //////////////////////STATS///////////////////////////////////
-          <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
-            <BlurView style={styles.modal} intensity={30} tint="light">
-              <Animated.View
-                entering={FadeInDown.duration(500).delay(250)}
-                exiting={FadeOutUp.duration(500)}
-                style={styles.modal}
-                onPress={() => {
-                  console.log("pressed");
-                }}
-              >
-                <TouchableWithoutFeedback
-                  style={[styles.stats, { borderWidth: 1 }]}
-                  onPress={(e) => e.stopPropagation()}
-                >
-                  <View style={[styles.stats]}>
-                    <Animated.View
-                      entering={FadeInUp.duration(500).delay(250)}
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        marginBottom: 20,
-                      }}
-                    >
-                      <Animated.Text
-                        entering={FadeInLeft.duration(500).delay(500)}
-                        style={styles.wrongModalCount}
-                      >
-                        {props.wrong}
-                      </Animated.Text>
-                      <PieChart
-                        style={{ marginLeft: 15, marginRight: 15 }}
-                        widthAndHeight={chart_wh}
-                        series={series}
-                        sliceColor={sliceColor}
-                        doughnut={true}
-                        coverRadius={0.45}
-                        coverFill={"#FFF"}
-                      />
-                      <Animated.Text
-                        entering={FadeInRight.duration(500).delay(500)}
-                        style={styles.rightModalCount}
-                      >
-                        {props.right}
-                      </Animated.Text>
-                    </Animated.View>
-                    <View style={{ flexDirection: "row" }}>
-                      <Animated.Text
-                        entering={FadeInLeft.duration(500).delay(750)}
-                        style={[styles.rightCount]}
-                      >
-                        Total:{" "}
-                      </Animated.Text>
-                      <Animated.Text
-                        entering={FadeInRight.duration(500).delay(750)}
-                        style={[
-                          styles.rightCount,
-                          { color: totalColor(total) },
-                        ]}
-                      >
-                        {total}
-                      </Animated.Text>
-                    </View>
-                    <Animated.Text
-                      entering={FadeInDown.duration(500).delay(1000)}
-                      style={styles.rightCount}
-                    >
-                      Accuracy:{" "}
-                      <Animated.Text
-                        style={[
-                          styles.rightCount,
-                          {
-                            color: percentColor(percent * 100),
-                          },
-                        ]}
-                      >
-                        {Math.round(percent * 100)}
-                      </Animated.Text>
-                      <Text style={{ fontSize: 20 }}> %</Text>
-                    </Animated.Text>
-                  </View>
-                </TouchableWithoutFeedback>
-              </Animated.View>
-            </BlurView>
-          </TouchableWithoutFeedback>
-        )}
-      </Modal>
-      <View style={{ flex: 1, justifyContent: "center" }}>
-        <View style={{ alignItems: "center" }}>
-          <TouchableOpacity onPress={newQuiz}>
-            <Text style={[styles.rightCount, { fontSize: 60 }]}>
-              {" "}
-              Quiz
-              <LottieView
-                source={require("../assets/Animations/EXCLAMATION.json")}
-                style={{ width: 70, height: 70 }}
-                loop={false}
-                ref={animationRef4}
-              />
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            position: "absolute",
-            bottom: 0,
-            flexDirection: "row",
-            left: 0,
-            right: 0,
-            justifyContent: "space-around",
-            marginBottom: 40,
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={showModal}
+          onRequestClose={() => {
+            Alert.alert("Modal has been closed.");
           }}
         >
-          <Animated.View
-            entering={FadeInLeft.duration(500).delay(500)}
-            style={{ alignItems: "center" }}
-          >
-            <TouchableOpacity onPress={openStats}>
-              <LottieView
-                source={require("../assets/Animations/GRAPH.json")}
-                style={{ width: 40, height: 40 }}
-                ref={animationRef}
-                loop={false}
-              />
+          {modalType === "achievements" ? (
+            ////////////////////////////ACHIEVEMENTS///////////////////////////
+            <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+              <BlurView style={styles.modal} intensity={30} tint="light">
+                <Animated.View
+                  entering={FadeInDown.duration(500).delay(250)}
+                  exiting={FadeOutUp.duration(500)}
+                  style={[styles.modal]}
+                  onPress={() => {
+                    console.log("pressed");
+                  }}
+                >
+                  <TouchableWithoutFeedback
+                    style={[styles.modal, { borderWidth: 1 }]}
+                    onPress={(e) => e.stopPropagation()}
+                  >
+                    <View style={[styles.stats]}>
+                      <Animated.View
+                        entering={FadeInUp.duration(500).delay(250)}
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginBottom: 20,
+                        }}
+                      >
+                        <View style={{ width: "100%" }}>
+                          <GestureRecognizer
+                            onSwipeLeft={nextAchievement}
+                            onSwipeRight={prevAchievement}
+                            style={{ width: "100%" }}
+                          >
+                            <Achievement achievement={currentAchievement} />
+                            <ConnectWallet />
+                          </GestureRecognizer>
+                        </View>
+                      </Animated.View>
+                    </View>
+                  </TouchableWithoutFeedback>
+                </Animated.View>
+              </BlurView>
+            </TouchableWithoutFeedback>
+          ) : modalType === "settings" ? (
+            //////////////////////SETTINGS///////////////////////////////////
+            <TouchableWithoutFeedback
+              onPress={() => {
+                setShowModal(false);
+                props.modifyAppState(category, difficulty);
+              }}
+            >
+              <BlurView style={styles.modal} intensity={30} tint="light">
+                <Animated.View
+                  entering={FadeInDown.duration(500).delay(250)}
+                  exiting={FadeOutUp.duration(500)}
+                  style={styles.modal}
+                  onPress={() => {
+                    console.log("pressed");
+                  }}
+                >
+                  <TouchableWithoutFeedback
+                    style={[styles.stats, {}]}
+                    onPress={(e) => e.stopPropagation()}
+                  >
+                    <View style={[styles.stats]}>
+                      <Animated.View
+                        entering={FadeInUp.duration(500).delay(250)}
+                        style={{
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: 20,
+                          width: "100%",
+                          height: "100%",
+                        }}
+                      >
+                        <Animated.Text>
+                          <Text style={styles.rightCount}>Settings</Text>
+                        </Animated.Text>
+                        <Animated.View
+                          style={{ width: "80%", alignItems: "center" }}
+                        >
+                          <Text
+                            style={[
+                              styles.answerText,
+                              { fontSize: 20, marginBottom: 5 },
+                            ]}
+                          >
+                            Category:{" "}
+                          </Text>
+                          <RNPickerSelect
+                            style={{
+                              ...defaultStyles,
+                              inputIOS: {
+                                fontSize: 16,
+                                paddingVertical: 12,
+                                paddingHorizontal: 10,
+                                textAlign: "center",
+                                borderWidth: 1,
+                                borderColor: "#4D5B9E",
+                                borderRadius: 20,
+                                color: "#293264",
+                              },
+                              inputAndroid: {
+                                fontSize: 16,
+                                paddingVertical: 12,
+                                paddingHorizontal: 10,
+                                textAlign: "center",
+                                borderWidth: 1,
+                                borderColor: "#4D5B9E",
+                                borderRadius: 20,
+                                color: "#293264",
+                              },
+                            }}
+                            placeholder={{
+                              label: "Select a category...",
+                              value: "any",
+                            }}
+                            onValueChange={(value) => setCategory(value)}
+                            items={categories}
+                          />
+                        </Animated.View>
+                        <Animated.View
+                          style={{ width: "80%", alignItems: "center" }}
+                        >
+                          <Text
+                            style={[
+                              styles.answerText,
+                              { fontSize: 20, marginBottom: 5 },
+                            ]}
+                          >
+                            Difficulty:{" "}
+                          </Text>
+                          <RNPickerSelect
+                            style={{
+                              ...defaultStyles,
+                              inputIOS: {
+                                fontSize: 16,
+                                paddingVertical: 12,
+                                paddingHorizontal: 10,
+                                textAlign: "center",
+                                borderWidth: 1,
+                                borderColor: "#4D5B9E",
+                                borderRadius: 20,
+                                color:
+                                  difficulty === "easy"
+                                    ? "#94D7A2"
+                                    : difficulty === "medium"
+                                    ? "#F8BCBC"
+                                    : difficulty === "hard"
+                                    ? "#ff5e5e"
+                                    : "#293264",
+                              },
+                              inputAndroid: {
+                                fontSize: 16,
+                                paddingVertical: 12,
+                                paddingHorizontal: 10,
+                                textAlign: "center",
+                                borderWidth: 1,
+                                borderColor: "#4D5B9E",
+                                borderRadius: 20,
+                                color:
+                                  difficulty === "easy"
+                                    ? "#94D7A2"
+                                    : difficulty === "medium"
+                                    ? "#F8BCBC"
+                                    : difficulty === "hard"
+                                    ? "#ff5e5e"
+                                    : "#293264",
+                              },
+                            }}
+                            placeholder={{
+                              label: "Select a difficulty...",
+                              value: "any",
+                            }}
+                            onValueChange={(value) => setDifficulty(value)}
+                            items={[
+                              {
+                                label: "Any",
+                                value: "any",
+                              },
+                              {
+                                label: "Easy",
+                                value: "easy",
+                              },
+                              {
+                                label: "Medium",
+                                value: "medium",
+                              },
+                              {
+                                label: "Hard",
+                                value: "hard",
+                              },
+                            ]}
+                          />
+                        </Animated.View>
+                      </Animated.View>
+                    </View>
+                  </TouchableWithoutFeedback>
+                </Animated.View>
+              </BlurView>
+            </TouchableWithoutFeedback>
+          ) : (
+            //////////////////////STATS///////////////////////////////////
+            <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
+              <BlurView style={styles.modal} intensity={30} tint="light">
+                <Animated.View
+                  entering={FadeInDown.duration(500).delay(250)}
+                  exiting={FadeOutUp.duration(500)}
+                  style={styles.modal}
+                  onPress={() => {
+                    console.log("pressed");
+                  }}
+                >
+                  <TouchableWithoutFeedback
+                    style={[styles.stats, { borderWidth: 1 }]}
+                    onPress={(e) => e.stopPropagation()}
+                  >
+                    <View style={[styles.stats]}>
+                      <Animated.View
+                        entering={FadeInUp.duration(500).delay(250)}
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginBottom: 20,
+                        }}
+                      >
+                        <Animated.Text
+                          entering={FadeInLeft.duration(500).delay(500)}
+                          style={styles.wrongModalCount}
+                        >
+                          {props.wrong}
+                        </Animated.Text>
+                        <PieChart
+                          style={{ marginLeft: 15, marginRight: 15 }}
+                          widthAndHeight={chart_wh}
+                          series={series}
+                          sliceColor={sliceColor}
+                          doughnut={true}
+                          coverRadius={0.45}
+                          coverFill={"#FFF"}
+                        />
+                        <Animated.Text
+                          entering={FadeInRight.duration(500).delay(500)}
+                          style={styles.rightModalCount}
+                        >
+                          {props.right}
+                        </Animated.Text>
+                      </Animated.View>
+                      <View style={{ flexDirection: "row" }}>
+                        <Animated.Text
+                          entering={FadeInLeft.duration(500).delay(750)}
+                          style={[styles.rightCount]}
+                        >
+                          Total:{" "}
+                        </Animated.Text>
+                        <Animated.Text
+                          entering={FadeInRight.duration(500).delay(750)}
+                          style={[
+                            styles.rightCount,
+                            { color: totalColor(total) },
+                          ]}
+                        >
+                          {total}
+                        </Animated.Text>
+                      </View>
+                      <Animated.Text
+                        entering={FadeInDown.duration(500).delay(1000)}
+                        style={styles.rightCount}
+                      >
+                        Accuracy:{" "}
+                        <Animated.Text
+                          style={[
+                            styles.rightCount,
+                            {
+                              color: percentColor(percent * 100),
+                            },
+                          ]}
+                        >
+                          {Math.round(percent * 100)}
+                        </Animated.Text>
+                        <Text style={{ fontSize: 20 }}> %</Text>
+                      </Animated.Text>
+                    </View>
+                  </TouchableWithoutFeedback>
+                </Animated.View>
+              </BlurView>
+            </TouchableWithoutFeedback>
+          )}
+        </Modal>
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <View style={{ alignItems: "center" }}>
+            <TouchableOpacity onPress={newQuiz}>
+              <Text style={[styles.rightCount, { fontSize: 60 }]}>
+                {" "}
+                Quiz
+                <LottieView
+                  source={require("../assets/Animations/EXCLAMATION.json")}
+                  style={{ width: 70, height: 70 }}
+                  loop={false}
+                  ref={animationRef4}
+                />
+              </Text>
             </TouchableOpacity>
-          </Animated.View>
-          <Animated.View
-            entering={FadeIn.duration(500).delay(750)}
-            style={{ alignItems: "center" }}
+          </View>
+          <View
+            style={{
+              position: "absolute",
+              bottom: 0,
+              flexDirection: "row",
+              left: 0,
+              right: 0,
+              justifyContent: "space-around",
+              marginBottom: 40,
+            }}
           >
-            <TouchableOpacity onPress={openAchievements}>
-              <LottieView
-                source={require("../assets/Animations/MEDAL.json")}
-                style={{ width: 40, height: 40 }}
-                ref={animationRef2}
-                loop={false}
-              />
-            </TouchableOpacity>
-          </Animated.View>
-          <Animated.View
-            entering={FadeInRight.duration(500).delay(1000)}
-            style={{ alignItems: "center" }}
-          >
-            <TouchableOpacity onPress={openSettings}>
-              <LottieView
-                source={require("../assets/Animations/SETTINGS.json")}
-                style={{ width: 40, height: 40 }}
-                ref={animationRef3}
-                loop={false}
-              />
-            </TouchableOpacity>
-          </Animated.View>
+            <Animated.View
+              entering={FadeInLeft.duration(500).delay(500)}
+              style={{ alignItems: "center" }}
+            >
+              <TouchableOpacity onPress={openStats}>
+                <LottieView
+                  source={require("../assets/Animations/GRAPH.json")}
+                  style={{ width: 40, height: 40 }}
+                  ref={animationRef}
+                  loop={false}
+                />
+              </TouchableOpacity>
+            </Animated.View>
+            <Animated.View
+              entering={FadeIn.duration(500).delay(750)}
+              style={{ alignItems: "center" }}
+            >
+              <TouchableOpacity onPress={openAchievements}>
+                <LottieView
+                  source={require("../assets/Animations/MEDAL.json")}
+                  style={{ width: 40, height: 40 }}
+                  ref={animationRef2}
+                  loop={false}
+                />
+              </TouchableOpacity>
+            </Animated.View>
+            <Animated.View
+              entering={FadeInRight.duration(500).delay(1000)}
+              style={{ alignItems: "center" }}
+            >
+              <TouchableOpacity onPress={openSettings}>
+                <LottieView
+                  source={require("../assets/Animations/SETTINGS.json")}
+                  style={{ width: 40, height: 40 }}
+                  ref={animationRef3}
+                  loop={false}
+                />
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
         </View>
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </ThirdwebProvider>
   );
 }
