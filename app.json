@@ -1,26 +1,26 @@
 {
   "expo": {
     "name": "Quiz ❗",
-    "slug": "quizzzicalmobile",
+    "slug": "quizzzicalmobiledapp",
     "version": "0.0.2",
     "orientation": "portrait",
-    "icon": "./assets/Images/icon.png",
+    "icon": "./assets/Images/icon_dapp.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/Images/splash.png",
+      "image": "./assets/Images/splash_dapp.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.oglenyaboss.quizzzicalmobile"
+      "bundleIdentifier": "com.oglenyaboss.quizzzicalmobiledapp"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       },
-      "package": "com.oglenyaboss.quizzzicalmobile"
+      "package": "com.oglenyaboss.quizzzicalmobiledapp"
     },
     "web": {},
     "extra": {

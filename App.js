@@ -17,6 +17,7 @@ import RightGif from "./components/RightGif";
 import BottomScreen from "./components/BottomScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import GestureRecognizer from "react-native-swipe-gestures";
+import { LinearGradient } from "expo-linear-gradient";
 
 //npx expo run:ios --configuration Release --device 00008020-001634CA2068C93A
 //npx expo run:ios --device 00008020-001634CA2068C93A
