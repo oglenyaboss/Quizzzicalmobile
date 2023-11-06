@@ -30,6 +30,7 @@ import {
   walletConnect,
 } from "@thirdweb-dev/react-native";
 import { Mumbai } from "@thirdweb-dev/chains";
+import { clientId, projectId } from "../DApp.config";
 
 export default function StartScreen(props) {
   const sdk = new ThirdwebSDK("mumbai", {
@@ -228,10 +229,10 @@ export default function StartScreen(props) {
     <ThirdwebProvider
       activeChain={activeChain}
       supportedChains={[activeChain]}
-      clientId="daa58531fdd7f13b87448bbe5ac5e252"
+      clientId={clientId}
       supportedWallets={[
         metamaskWallet({
-          projectId: "1b257b2ba82bb52fcff360a0a1f210c4",
+          projectId: projectId,
         }),
       ]}
     >

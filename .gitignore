@@ -43,3 +43,4 @@ yarn-error.*
 /.vscode
 /.idea
 .prettierrc
+.DApp.config.js

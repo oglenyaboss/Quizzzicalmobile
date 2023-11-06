@@ -18,6 +18,9 @@ import BottomScreen from "./components/BottomScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import GestureRecognizer from "react-native-swipe-gestures";
 
+//npx expo run:ios --configuration Release --device 00008020-001634CA2068C93A
+//npx expo run:ios --device 00008020-001634CA2068C93A
+
 export default function App() {
   //TODO: create achievements and NFT
   const [sound, setSound] = React.useState();
