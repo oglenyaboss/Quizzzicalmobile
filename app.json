@@ -2,7 +2,7 @@
   "expo": {
     "name": "Quiz ❗",
     "slug": "quizzzicalmobile",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "orientation": "portrait",
     "icon": "./assets/Images/icon.png",
     "userInterfaceStyle": "light",
@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.oglenyaboss.quizzzicalmobile"
@@ -21,7 +19,8 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.oglenyaboss.quizzzicalmobile"
     },
     "web": {},
     "extra": {

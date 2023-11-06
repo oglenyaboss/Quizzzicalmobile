@@ -11,6 +11,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { styles } from "./Styles";
 
+//TODO: choose theme and difficulty
+
 export default function Quiz(props) {
   let questionLength = props.currentQuestion.question.length;
   const questionFontSize =

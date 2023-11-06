@@ -5,6 +5,7 @@ node_modules/
 
 # testing
 ios/
+android/
 
 # Expo
 .expo/

@@ -1,6 +1,36 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+  achievement: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    height: "100%",
+  },
+  achievementLocked: {
+    opacity: 0.5,
+  },
+  achievementUnlocked: {
+    opacity: 1,
+  },
+  achievementTitle: {
+    fontFamily: "Inter-700",
+    fontSize: 30,
+    color: "#293264",
+  },
+  achievementContainer: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: "100%",
+    height: "100%",
+  },
+  achievementDescription: {
+    width: "100%",
+    fontFamily: "Inter-500",
+    fontSize: 10,
+    color: "#293264",
+  },
   container: {
     flex: 1,
     width: "100%",
@@ -8,9 +38,45 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  modal: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: "100%",
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  stats: {
+    padding: 20,
+    width: 300,
+    height: 300,
+    borderRadius: 30,
+    justifyContent: "space-between",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 5,
+    backgroundColor: "#fff",
+    opacity: 0.8,
+  },
   rightCount: {
     fontFamily: "Inter-700",
     color: "#293264",
+    fontSize: 25,
+  },
+  rightModalCount: {
+    fontFamily: "Inter-700",
+    color: "#94D7A2",
+    fontSize: 25,
+  },
+  wrongModalCount: {
+    fontFamily: "Inter-700",
+    color: "#F8BCBC",
     fontSize: 25,
   },
   buttonsContainer: {

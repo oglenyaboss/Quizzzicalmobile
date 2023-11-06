@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { View, Modal, Text } from "react-native";
 import React from "react";
 import axios from "axios";
 import { customAlphabet } from "nanoid/non-secure";
@@ -15,23 +15,92 @@ import Loading from "./components/Loading";
 import { styles } from "./components/Styles";
 import RightGif from "./components/RightGif";
 import BottomScreen from "./components/BottomScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import GestureRecognizer from "react-native-swipe-gestures";
 
 export default function App() {
+  //TODO: create achievements and NFT
   const [sound, setSound] = React.useState();
   const [questions, setQuestions] = React.useState(null);
   const [appState, setAppState] = React.useState({
-    isStarted: false,
     isLoaded: false,
-    currentQuestionIndex: 0,
+    isLost: false,
     showRightGif: false,
     isNetworkError: false,
     isModalVisible: false,
+    category: "any",
+    difficulty: "any",
   });
+  const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0);
+  const [isStarted, setIsStarted] = React.useState(false);
   const [counts, setCounts] = React.useState({
     rightCount: 0,
     wrongCount: 0,
   });
-  const [isModalVisible, setModalVisible] = React.useState(false);
+  const [stats, setStats] = React.useState({
+    rightCount: 0,
+    wrongCount: 0,
+  });
+  const animations = {
+    achievementTen: require("./assets/Animations/10ach.json"),
+    achievementTwentyFive: require("./assets/Animations/25ach.json"),
+    achievementFifty: require("./assets/Animations/50ach.json"),
+    achievementHundred: require("./assets/Animations/100ach.json"),
+    achievementTwoHundredFifty: require("./assets/Animations/250ach.json"),
+    achievementFiveHundred: require("./assets/Animations/500ach.json"),
+    achievementThousand: require("./assets/Animations/MEDAL.json"),
+    achievementTenThousand: require("./assets/Animations/CRYSTALL.json"),
+  };
+  const [achievements, setAchievements] = React.useState([
+    {
+      name: 10,
+      description: "Correctly answer 10 questions",
+      image: animations.achievementTen,
+      state: "locked",
+    },
+    {
+      name: 25,
+      description: "Correctly answer 25 questions",
+      image: animations.achievementTwentyFive,
+      state: "locked",
+    },
+    {
+      name: 50,
+      description: "Correctly answer 50 questions",
+      image: animations.achievementFifty,
+      state: "locked",
+    },
+    {
+      name: 100,
+      description: "Correctly answer 100 questions",
+      image: animations.achievementHundred,
+      state: "locked",
+    },
+    {
+      name: 250,
+      description: "Correctly answer 250 questions",
+      image: animations.achievementTwoHundredFifty,
+      state: "locked",
+    },
+    {
+      name: 500,
+      description: "Correctly answer 500 questions",
+      image: animations.achievementFiveHundred,
+      state: "locked",
+    },
+    {
+      name: 1000,
+      description: "Correctly answer 1000 questions",
+      image: animations.achievementThousand,
+      state: "locked",
+    },
+    {
+      name: 10000,
+      description: "Correctly answer 10000 questions",
+      image: animations.achievementTenThousand,
+      state: "locked",
+    },
+  ]);
 
   const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 10);
   const [loaded] = useFonts({
@@ -44,17 +113,110 @@ export default function App() {
   const animationRef = React.useRef(null);
 
   React.useEffect(() => {
+    if (stats.rightCount === 2) {
+      setAchievements((prevState) => {
+        return prevState.map((achievement) => {
+          if (achievement.name === 10) {
+            return { ...achievement, state: "unlocked" };
+          } else {
+            return achievement;
+          }
+        });
+      });
+      saveAchievements();
+    } else if (stats.rightCount === 25) {
+      setAchievements((prevState) => {
+        return prevState.map((achievement) => {
+          if (achievement.name === 25) {
+            return { ...achievement, state: "unlocked" };
+          } else {
+            return achievement;
+          }
+        });
+      });
+      saveAchievements();
+    } else if (stats.rightCount === 50) {
+      setAchievements((prevState) => {
+        return prevState.map((achievement) => {
+          if (achievement.name === 50) {
+            return { ...achievement, state: "unlocked" };
+          } else {
+            return achievement;
+          }
+        });
+      });
+      saveAchievements();
+    } else if (stats.rightCount === 100) {
+      setAchievements((prevState) => {
+        return prevState.map((achievement) => {
+          if (achievement.name === 100) {
+            return { ...achievement, state: "unlocked" };
+          } else {
+            return achievement;
+          }
+        });
+      });
+      saveAchievements();
+    } else if (stats.rightCount === 250) {
+      setAchievements((prevState) => {
+        return prevState.map((achievement) => {
+          if (achievement.name === 250) {
+            return { ...achievement, state: "unlocked" };
+          } else {
+            return achievement;
+          }
+        });
+      });
+      saveAchievements();
+    } else if (stats.rightCount === 500) {
+      setAchievements((prevState) => {
+        return prevState.map((achievement) => {
+          if (achievement.name === 500) {
+            return { ...achievement, state: "unlocked" };
+          } else {
+            return achievement;
+          }
+        });
+      });
+      saveAchievements();
+    } else if (stats.rightCount === 1000) {
+      setAchievements((prevState) => {
+        return prevState.map((achievement) => {
+          if (achievement.name === 1000) {
+            return { ...achievement, state: "unlocked" };
+          } else {
+            return achievement;
+          }
+        });
+      });
+      saveAchievements();
+    } else {
+      return;
+    }
+    saveAchievements();
+  }, [stats]);
+
+  React.useEffect(() => {
     fetchTriviaData();
+    getData();
+    getAchievements();
   }, []);
 
   React.useEffect(() => {
+    fetchTriviaData();
+  }, [appState.category, appState.difficulty]);
+
+  React.useEffect(() => {
+    saveData();
+  }, [stats.wrongCount, counts.rightCount]);
+
+  React.useEffect(() => {
     animationRef.current?.play(0, 150);
-  }, [counts.rightCount]);
+  }, [stats.rightCount]);
 
   React.useEffect(() => {
     return sound
       ? () => {
-          console.log("Unloading Sound");
           sound.unloadAsync();
         }
       : undefined;
@@ -64,11 +226,65 @@ export default function App() {
     if (loaded) {
       console.log(currentQuestion.correct_answer);
     }
-  }, [appState.currentQuestionIndex]);
+  }, [currentQuestionIndex]);
 
   function removeHtmlTags(str) {
     return decode(str);
   }
+
+  // Function to modify category and difficulty
+  const modifyAppState = (newCategory, newDifficulty) => {
+    setAppState((prevState) => ({
+      ...prevState,
+      category: newCategory,
+      difficulty: newDifficulty,
+    }));
+  };
+
+  const saveAchievements = async () => {
+    try {
+      await AsyncStorage.setItem("achievements", JSON.stringify(achievements));
+      console.log(achievements + "save");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getAchievements = async () => {
+    try {
+      const achievements = await AsyncStorage.getItem("achievements");
+      console.log(achievements[0].state + "get");
+      if (achievements !== null) {
+        setAchievements(JSON.parse(achievements));
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem("wrongCount", stats.wrongCount.toString());
+      await AsyncStorage.setItem("rightCount", stats.rightCount.toString());
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getData = async () => {
+    try {
+      const wrongCount = await AsyncStorage.getItem("wrongCount");
+      const rightCount = await AsyncStorage.getItem("rightCount");
+      if (wrongCount !== null && rightCount !== null) {
+        setStats({
+          wrongCount: parseInt(wrongCount),
+          rightCount: parseInt(rightCount),
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const shuffleArray = (array) => {
     const shuffledArray = [...array];
@@ -83,7 +299,6 @@ export default function App() {
   };
 
   async function playSound(name) {
-    console.log("Loading Sound");
     let { sound } = await Audio.Sound.createAsync(
       require("./assets/Sounds/whoosh.mp3")
     );
@@ -106,55 +321,63 @@ export default function App() {
     }
     setSound(sound);
 
-    console.log("Playing Sound");
     await sound.playAsync();
   }
 
   const fetchTriviaData = async () => {
     try {
-      const response = await axios.get(
-        "https://opentdb.com/api.php?amount=50&type=multiple"
-      ); // Замените URL на необходимый для Trivia API
+      const link =
+        appState.category === "any" && appState.difficulty === "any"
+          ? `https://opentdb.com/api.php?amount=10&type=multiple`
+          : appState.category === "any"
+          ? `https://opentdb.com/api.php?amount=10&difficulty=${appState.difficulty}&type=multiple`
+          : appState.difficulty === "any"
+          ? `https://opentdb.com/api.php?amount=10&category=${appState.category}&type=multiple`
+          : `https://opentdb.com/api.php?amount=10&category=${appState.category}&difficulty=${appState.difficulty}&type=multiple`;
+      const response = await axios.get(link);
       if (response.status === 200) {
-        // Получите данные из ответа и установите их в состояние
-        setQuestions(
-          response.data.results.map((question) => {
-            const mergedArray = [
-              ...question.incorrect_answers,
-              question.correct_answer,
-            ];
-            const shuffledArray = shuffleArray(
-              mergedArray.map((answer) => ({
-                answerId: nanoid(),
-                text: removeHtmlTags(answer),
-                isHeld: false,
-                isCorrect: question.correct_answer === answer,
-                isRight: undefined,
-              }))
-            );
-            console.log(question.correct_answer);
-            return {
-              ...question,
-              isChecked: false,
-              correct_answer: removeHtmlTags(question.correct_answer),
-              question: removeHtmlTags(question.question),
-              answers: shuffledArray,
-              id: nanoid(),
-            };
-          })
-        );
+        const newQuestions = response.data.results.map((question) => {
+          const mergedArray = [
+            ...question.incorrect_answers,
+            question.correct_answer,
+          ];
+          const shuffledArray = shuffleArray(
+            mergedArray.map((answer) => ({
+              answerId: nanoid(),
+              text: removeHtmlTags(answer),
+              isHeld: false,
+              isCorrect: question.correct_answer === answer,
+              isRight: undefined,
+            }))
+          );
+          return {
+            ...question,
+            isChecked: false,
+            correct_answer: removeHtmlTags(question.correct_answer),
+            question: removeHtmlTags(question.question),
+            answers: shuffledArray,
+            id: nanoid(),
+          };
+        });
+
+        // Push new questions to existing questions
+        currentQuestionIndex === 0
+          ? setQuestions(() => newQuestions)
+          : setQuestions((questions) => [...questions, ...newQuestions]);
       } else {
         setAppState({ ...appState, isNetworkError: true });
-        console.error("Ошибка при запросе данных");
+        console.error("Error fetching data");
       }
     } catch (error) {
       setAppState({ ...appState, isNetworkError: true });
-      console.error("Произошла ошибка при выполнении запроса:", error);
+      console.error("Error fetching:", error);
     } finally {
-      setAppState({ ...appState, isStarted: false });
-      setTimeout(() => setAppState({ ...appState, isLoaded: true }), 1500);
+      setTimeout(() => {
+        setAppState({ ...appState, isLoaded: true });
+      }, 2000);
     }
   };
+
   function holdAnswer(id, answerId) {
     setQuestions((questions) =>
       questions.map((question) => {
@@ -180,10 +403,11 @@ export default function App() {
 
         const rightAnswer = updatedAnswers.find((answer) => answer.isCorrect);
 
-        let wrongCountNum = 0;
-
         if (rightAnswer && rightAnswer.isHeld) {
           setCounts({ ...counts, rightCount: counts.rightCount + 1 });
+          setStats((prevState) => {
+            return { ...prevState, rightCount: prevState.rightCount + 1 };
+          });
           playSound("correct");
           setTimeout(
             () =>
@@ -192,9 +416,14 @@ export default function App() {
               ),
             250
           );
+          setTimeout(() => nextQuestion(), isRight ? 2000 : 1000);
         } else if (counts.rightCount > 0) {
-          wrongCountNum++;
-          setCounts({ ...counts, wrongCount: wrongCountNum });
+          setAppState({ ...appState, isLost: true });
+          setCounts({ ...counts, wrongCount: counts.wrongCount + 1 });
+          setStats((prevState) => {
+            return { ...prevState, wrongCount: prevState.wrongCount + 1 };
+          });
+          setCurrentQuestionIndex(0);
           playSound();
           setTimeout(
             () =>
@@ -202,73 +431,68 @@ export default function App() {
             250
           );
         } else {
+          setStats((prevState) => {
+            return { ...prevState, wrongCount: prevState.wrongCount + 1 };
+          });
           playSound("wrong");
           setTimeout(
             () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy),
             250
           );
-        }
-
-        wrongCountNum === 0 &&
           setTimeout(() => nextQuestion(), isRight ? 2000 : 1000);
+        }
 
         return { ...question, isChecked: true, answers: updatedAnswers };
       })
     );
   }
   function previousQuestion() {
-    if (appState.currentQuestionIndex > 0) {
+    if (currentQuestionIndex > 0) {
       setAppState({
         ...appState,
         showRightGif: false,
-        currentQuestionIndex: appState.currentQuestionIndex - 1,
       });
+      setCurrentQuestionIndex((prevState) => prevState - 1);
     }
   }
-
-  function newGame() {
-    if (appState.currentQuestionIndex === 0) {
-      console.log(JSON.stringify(appState));
-      setAppState({
-        ...appState,
-        isLoaded: true,
-        isStarted: true,
-        currentQuestionIndex: 0,
-      });
-      setCounts({
-        rightCount: 0,
-        wrongCount: 0,
-      });
-    } else {
-      setAppState({
-        ...appState,
-        isStarted: false,
-        isLoaded: false,
-        currentQuestionIndex: 0,
-      });
-      setCounts({
-        rightCount: 0,
-        wrongCount: 0,
-      });
-      fetchTriviaData();
-    }
-  }
-  async function nextQuestion() {
-    if (appState.currentQuestionIndex === questions.length - 1) {
-      fetchTriviaData();
-      setAppState({ ...appState, isStarted: true });
-    }
-    await playSound("whoosh");
+  async function newGame() {
     setAppState({
       ...appState,
-      currentQuestionIndex: appState.currentQuestionIndex + 1,
-      isLoaded: true,
-      showRightGif: false,
+      isLoaded: false,
+      isLost: false,
+    });
+    setCounts({
+      rightCount: 0,
+      wrongCount: 0,
+    });
+    setIsStarted(false);
+    setCurrentQuestionIndex(0);
+    await fetchTriviaData();
+    setTimeout(() => {
+      setAppState({ ...appState, isLoaded: true });
+    }, 2500);
+  }
+
+  function startGame() {
+    setIsStarted(true);
+  }
+  async function nextQuestion() {
+    if (currentQuestionIndex === questions.length - 4) {
+      fetchTriviaData();
+      setIsStarted(true);
+    }
+    await playSound("whoosh");
+    setCurrentQuestionIndex((prevState) => prevState + 1);
+    setAppState((prevState) => {
+      return {
+        ...prevState,
+        showRightGif: false,
+      };
     });
   }
 
   const currentQuestion =
-    questions === null ? null : questions[appState.currentQuestionIndex];
+    questions === null ? null : questions[currentQuestionIndex];
 
   return (
     <View style={[styles.container]}>
@@ -276,13 +500,19 @@ export default function App() {
         <Loading />
       ) : appState.isNetworkError === true ? (
         <NetworkError fetchTriviaData={fetchTriviaData} />
-      ) : appState.isStarted === false ? (
-        <StartScreen newGame={newGame} />
+      ) : isStarted === false ? (
+        <StartScreen
+          modifyAppState={modifyAppState}
+          newGame={startGame}
+          wrong={stats.wrongCount}
+          right={stats.rightCount}
+          achievements={achievements}
+        />
       ) : counts.wrongCount > 0 ? (
         <Lost newGame={newGame} />
       ) : (
         <Animated.View
-          entering={FadeInRight.duration(500).delay(500)}
+          entering={FadeInRight.duration(500).delay(1500)}
           exiting={FadeOutLeft.duration(500)}
           style={[styles.container]}
         >
@@ -296,16 +526,31 @@ export default function App() {
               alignItems: "center",
             }}
           >
-            <Quiz
-              currentQuestion={currentQuestion}
-              key={currentQuestion.id}
-              holdAnswer={holdAnswer}
-              nextQuestion={nextQuestion}
-            />
+            <GestureRecognizer
+              onSwipeLeft={() => nextQuestion()}
+              onSwipeRight={() => {
+                previousQuestion();
+              }}
+              config={{
+                velocityThreshold: 0.3,
+                directionalOffsetThreshold: 80,
+              }}
+              style={{
+                flex: 1,
+                backgroundColor: "transparent",
+              }}
+            >
+              <Quiz
+                currentQuestion={currentQuestion}
+                key={currentQuestion.id}
+                holdAnswer={holdAnswer}
+                nextQuestion={nextQuestion}
+              />
+            </GestureRecognizer>
           </View>
           <BottomScreen
             rightCount={counts.rightCount}
-            currentQuestionIndex={appState.currentQuestionIndex}
+            currentQuestionIndex={currentQuestionIndex}
             questions={questions}
             previousQuestion={previousQuestion}
             nextQuestion={nextQuestion}
