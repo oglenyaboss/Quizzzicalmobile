@@ -298,11 +298,14 @@ export default function StartScreen(props) {
                         height: "100%",
                       }}
                     >
-                      <Animated.Text>
+                      <Animated.Text
+                        entering={FadeInUp.duration(500).delay(500)}
+                      >
                         <Text style={styles.rightCount}>Settings</Text>
                       </Animated.Text>
                       <Animated.View
                         style={{ width: "80%", alignItems: "center" }}
+                        entering={FadeInLeft.duration(500).delay(750)}
                       >
                         <Text
                           style={[
@@ -346,6 +349,7 @@ export default function StartScreen(props) {
                       </Animated.View>
                       <Animated.View
                         style={{ width: "80%", alignItems: "center" }}
+                        entering={FadeInDown.duration(500).delay(1000)}
                       >
                         <Text
                           style={[
