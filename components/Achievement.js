@@ -6,6 +6,8 @@ import {
   Image,
   Button,
   Modal,
+  TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
 import LottieView from "lottie-react-native";
 import { styles } from "./Styles";
@@ -17,9 +19,19 @@ import Animated, {
   FadeInLeft,
   FadeOutLeft,
   FadeInRight,
+  FadeIn,
 } from "react-native-reanimated";
+import { BlurView } from "expo-blur";
+import { Video } from "expo-av";
+import {
+  useContract,
+  useAddress,
+  useNFT,
+  useMintNFT,
+} from "@thirdweb-dev/react-core";
+import { Web3Button } from "@thirdweb-dev/react-native";
 
-import { useContract, useAddress, useNFT } from "@thirdweb-dev/react-core";
+const contractAddress = "0xD8445797679fF77E7AD457728B4169DdbEF88f30";
 
 export default function Achievement(props) {
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -27,13 +39,16 @@ export default function Achievement(props) {
     props.achievement.state === "locked"
       ? styles.achievementLocked
       : styles.achievementUnlocked;
-  const { contract } = useContract(
-    "0xD8445797679fF77E7AD457728B4169DdbEF88f30"
-  );
+  const { contract } = useContract(contractAddress);
   const address = useAddress();
 
-  const { data: nft } = useNFT(contract, 0);
+  const { data: nft, isLoading: isLoadingData } = useNFT(
+    contract,
+    props.achievementIndex + 1
+  );
+  console.log(nft);
   const nftImage = nft?.metadata.image;
+  const { mutateAsync: mintNft, isLoading, error } = useMintNFT(contract);
 
   return (
     <View style={styles.achievementContainer}>
@@ -66,40 +81,114 @@ export default function Achievement(props) {
             key={props.achievement.name}
           >
             <Modal
-              animationType="slide"
+              animationType="fade"
               transparent={true}
               visible={modalVisible}
               onRequestClose={() => {
                 setModalVisible(false);
               }}
             >
-              <View
-                style={{
-                  flex: 1,
-                  backgroundColor: "#F5F7FB",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <TouchableOpacity
-                  style={{
-                    position: "absolute",
-                    top: 40,
-                    right: 40,
-                    zIndex: 100,
-                  }}
-                  onPress={() => {
-                    setModalVisible(false);
-                  }}
-                >
-                  <Text style={{ fontSize: 30 }}>X</Text>
-                </TouchableOpacity>
-                <Image
-                  source={{ uri: nftImage?.toString() }}
-                  style={{ width: 300, height: 300 }}
-                />
-                <Text>{nft?.metadata.name}</Text>
-              </View>
+              <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+                <BlurView style={styles.modal} intensity={30} tint="light">
+                  <Animated.View
+                    entering={FadeInUp.duration(1500).delay(250)}
+                    exiting={FadeOutDown.duration(500)}
+                    style={styles.modal}
+                    onPress={() => {
+                      console.log("pressed");
+                    }}
+                  >
+                    <TouchableWithoutFeedback
+                      style={[styles.stats, { borderWidth: 1 }]}
+                      onPress={(e) => e.stopPropagation()}
+                    >
+                      <View style={[styles.stats]}>
+                        {isLoadingData ? (
+                          <Animated.View
+                            entering={FadeInUp.duration(500).delay(250)}
+                            exiting={FadeOutDown.duration(500)}
+                          >
+                            <LottieView
+                              style={{ width: 200 }}
+                              source={require("../assets/Animations/CLOCK.json")}
+                              autoPlay
+                              loop
+                            />
+                          </Animated.View>
+                        ) : (
+                          <>
+                            <Animated.Text
+                              entering={FadeInUp.duration(500).delay(1500)}
+                              style={[styles.achievementTitle]}
+                            >
+                              {nft?.metadata.name}
+                            </Animated.Text>
+                            <Animated.View
+                              entering={FadeInLeft.duration(500).delay(2000)}
+                            >
+                              <Video
+                                source={{ uri: nft?.metadata.animation_url }}
+                                style={{
+                                  width: 150,
+                                  height: 150,
+                                  borderRadius: 20,
+                                }}
+                                shouldPlay
+                                isLooping
+                              />
+                            </Animated.View>
+                            <Animated.Text
+                              style={[
+                                styles.achievementDescription,
+                                { textAlign: "center", fontSize: 15 },
+                              ]}
+                              entering={FadeInRight.duration(500).delay(2500)}
+                            >
+                              {nft?.metadata.description}
+                            </Animated.Text>
+                            <Animated.View
+                              entering={FadeInDown.duration(500).delay(3000)}
+                            >
+                              <Web3Button
+                                contractAddress={contractAddress}
+                                action={() => {
+                                  mintNft({
+                                    metadata: nft?.metadata,
+                                    to: address,
+                                  });
+                                }}
+                                isDisabled={
+                                  props.achievement.state === "minted" ||
+                                  props.achievement.state === "locked"
+                                    ? true
+                                    : false
+                                }
+                                onSuccess={() => {
+                                  props.modifyAchievements(
+                                    props.achievementIndex
+                                  );
+                                }}
+                                onSubmit={() => {
+                                  Alert.alert(
+                                    "Minting NFT",
+                                    "Please confirm the transaction in your wallet."
+                                  );
+                                }}
+                              >
+                                {props.achievement.state === "minted"
+                                  ? "Minted"
+                                  : props.achievement.state === "locked"
+                                  ? "Locked"
+                                  : "Mint"}
+                              </Web3Button>
+                            </Animated.View>
+                          </>
+                        )}
+                      </View>
+                    </TouchableWithoutFeedback>
+                  </Animated.View>
+                </BlurView>
+              </TouchableWithoutFeedback>
             </Modal>
             <LottieView
               style={[styleLocked, { height: 150, width: 150 }]}

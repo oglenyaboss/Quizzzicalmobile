@@ -151,4 +151,10 @@ export const styles = StyleSheet.create({
     color: "#293264",
     fontFamily: "Inter-500",
   },
+  mintedButton: {
+    color: "#293264",
+  },
+  lockedButton: {
+    color: "#F8BCBC",
+  },
 });

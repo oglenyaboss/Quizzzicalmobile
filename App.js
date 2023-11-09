@@ -17,11 +17,8 @@ import RightGif from "./components/RightGif";
 import BottomScreen from "./components/BottomScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import GestureRecognizer from "react-native-swipe-gestures";
-import { LinearGradient } from "expo-linear-gradient";
 
 //npx expo run:ios --configuration Release --device 00008020-001634CA2068C93A
-//npx expo run:ios --device 00008020-001634CA2068C93A
-
 export default function App() {
   //TODO: create achievements and NFT
   const [sound, setSound] = React.useState();
@@ -207,6 +204,10 @@ export default function App() {
   }, []);
 
   React.useEffect(() => {
+    console.log(achievements[0].state);
+  }, [achievements]);
+
+  React.useEffect(() => {
     fetchTriviaData();
   }, [appState.category, appState.difficulty]);
 
@@ -243,6 +244,19 @@ export default function App() {
       category: newCategory,
       difficulty: newDifficulty,
     }));
+  };
+
+  const modifyAchievements = (index) => {
+    setAchievements((prevState) => {
+      return prevState.map((achievement, i) => {
+        if (i === index) {
+          return { ...achievement, state: "minted" };
+        } else {
+          return achievement;
+        }
+      });
+    });
+    saveAchievements();
   };
 
   const saveAchievements = async () => {
@@ -511,6 +525,7 @@ export default function App() {
           wrong={stats.wrongCount}
           right={stats.rightCount}
           achievements={achievements}
+          modifyAchievements={modifyAchievements}
         />
       ) : counts.wrongCount > 0 ? (
         <Lost newGame={newGame} />

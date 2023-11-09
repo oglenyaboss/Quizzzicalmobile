@@ -224,7 +224,6 @@ export default function StartScreen(props) {
     : null;
   const activeChain = Mumbai;
 
-  //TODO: Add a modal for achievements
   return (
     <ThirdwebProvider
       activeChain={activeChain}
@@ -265,7 +264,7 @@ export default function StartScreen(props) {
                     style={[styles.modal, { borderWidth: 1 }]}
                     onPress={(e) => e.stopPropagation()}
                   >
-                    <View style={[styles.stats]}>
+                    <View style={[styles.stats, { marginBottom: 100 }]}>
                       <Animated.View
                         entering={FadeInUp.duration(500).delay(250)}
                         style={{
@@ -281,13 +280,22 @@ export default function StartScreen(props) {
                             onSwipeRight={prevAchievement}
                             style={{ width: "100%" }}
                           >
-                            <Achievement achievement={currentAchievement} />
-                            <ConnectWallet />
+                            <Achievement
+                              achievementIndex={currentAchievementIndex}
+                              achievement={currentAchievement}
+                              modifyAchievements={props.modifyAchievements}
+                            />
                           </GestureRecognizer>
                         </View>
                       </Animated.View>
                     </View>
                   </TouchableWithoutFeedback>
+                  <Animated.View
+                    entering={FadeInDown.duration(500).delay(1000)}
+                    style={{ position: "absolute", bottom: 100 }}
+                  >
+                    <ConnectWallet />
+                  </Animated.View>
                 </Animated.View>
               </BlurView>
             </TouchableWithoutFeedback>

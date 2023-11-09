@@ -47,6 +47,7 @@
     "react-native-select-list": "^1.0.5",
     "react-native-svg": "^13.14.0",
     "react-native-swipe-gestures": "^1.0.5",
+    "react-native-video": "^5.2.1",
     "react-native-web": "~0.19.6",
     "victory-native": "^40.0.2"
   },
